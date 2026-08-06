@@ -34,7 +34,7 @@ def _print_menu() -> None:
 
     print("\n=== Mini NPU Simulator ===")
     print("1. 3x3 사용자 입력 모드")
-    print("2. data.json 로드 및 정규화")
+    print("2. data.json 일괄 분석")
     print("3. 종료")
 
 

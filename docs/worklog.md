@@ -287,3 +287,75 @@
 ### 다음 작업
 
 단계 4 JSON 케이스별 MAC 판정, PASS/FAIL과 전체 결과 요약의 구현 방향을 설명하고 사용자 승인을 받는다.
+
+## 2026-08-06 — 단계 4 JSON 일괄 판정과 결과 요약 구현
+
+### 변경 파일
+
+- `src/json_mode.py`
+- `src/report.py`
+- `src/menu.py`
+- `README.md`
+- `docs/requirements.md`
+- `docs/progress.md`
+- `docs/worklog.md`
+
+### 수행 내용
+
+- 검증된 패턴을 Cross/X 필터와 각각 MAC 계산하도록 연결
+- epsilon 기준 Cross/X/UNDECIDED 판정 연결
+- 실제 판정과 expected를 비교한 PASS/FAIL 구현
+- 데이터 구조 오류와 MAC 계산 오류를 해당 케이스 FAIL로 변환
+- 오류 케이스 뒤 다음 케이스 분석 계속 처리
+- 케이스별 Cross/X 점수, 판정, expected, PASS/FAIL과 실패 사유 출력
+- 전체 케이스, 통과, 실패 수와 판정 epsilon 출력
+- 실패 케이스 식별자와 직접 원인 목록 출력
+- 개별 결과와 전체 요약 출력을 `src/report.py`로 분리
+- 메뉴 2번 이름을 `data.json 일괄 분석`으로 변경
+
+### Codex 실행 여부
+
+- 코드 실행 없음
+- 유닛 테스트 작성 및 실행 없음
+- Git 명령 실행 없음
+- JSON 판정 결과 미확인
+
+### 다음 작업
+
+사용자가 메뉴 2번을 실행해 케이스별 점수와 PASS/FAIL, 전체 합계를 확인한다. 실제 결과는 `evidence/json-analysis.md`에 기록한다.
+
+## 2026-08-06 — JSON 일괄 판정 실행 결과 반영
+
+### 사용자 제공 실행 결과
+
+- 전체 케이스: 6
+- 통과: 3
+- 실패: 3
+- 판정 epsilon: `1e-09`
+- 실패 케이스: `size_5_1`, `size_13_2`, `size_25_1`
+
+### 실패 직접 원인
+
+- `size_5_1`: Cross 0.9, X 0.9로 UNDECIDED, expected X
+- `size_13_2`: Cross 7.5, X 7.5로 UNDECIDED, expected Cross
+- `size_25_1`: Cross 4.9, X 4.9로 UNDECIDED, expected X
+
+세 케이스 모두 epsilon 동점 정책에 따라 UNDECIDED가 되었고 expected와 불일치해 FAIL 처리됐다. 구조 또는 라벨 정규화 오류는 확인되지 않았다.
+
+### 변경 파일
+
+- `evidence/json-analysis.md`
+- `README.md`
+- `docs/requirements.md`
+- `docs/progress.md`
+- `docs/worklog.md`
+
+### Codex 실행 여부
+
+- 코드 실행 없음
+- 유닛 테스트 작성 및 실행 없음
+- Git 명령 실행 없음
+
+### 다음 작업
+
+단계 5 크기별 성능 분석의 구현 방향을 설명하고 사용자 승인을 받는다.
