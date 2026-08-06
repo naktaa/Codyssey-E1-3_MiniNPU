@@ -1,6 +1,7 @@
 """Mini NPU 실행 메뉴와 모드 선택 흐름."""
 
 from src.manual_mode import run_manual_mode
+from src.json_mode import run_json_mode
 
 
 def run_menu() -> None:
@@ -19,8 +20,8 @@ def run_menu() -> None:
             _run_manual_mode_safely()
             return
         if choice == "2":
-            print("data.json 분석 모드는 이후 단계에서 구현합니다.")
-            continue
+            run_json_mode()
+            return
         if choice == "3":
             _print_exit_message()
             return
@@ -33,7 +34,7 @@ def _print_menu() -> None:
 
     print("\n=== Mini NPU Simulator ===")
     print("1. 3x3 사용자 입력 모드")
-    print("2. data.json 분석 모드 (구현 예정)")
+    print("2. data.json 로드 및 정규화")
     print("3. 종료")
 
 

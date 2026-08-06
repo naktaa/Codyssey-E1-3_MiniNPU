@@ -147,7 +147,7 @@
 - `src/manual_mode.py`
 - `AGENTS.md`
 - `MISSION.md`
-- `evidence/FUNC-008-manual-mode-x.md`
+- `evidence/manual-mode-success.md`
 - `README.md`
 - `docs/requirements.md`
 - `docs/progress.md`
@@ -185,7 +185,7 @@
 
 ### 변경 파일
 
-- `evidence/FUNC-007-invalid-input.md`
+- `evidence/invalid-input.md`
 - `README.md`
 - `docs/requirements.md`
 - `docs/progress.md`
@@ -206,3 +206,84 @@
 ### 다음 작업
 
 단계 3 JSON 로드와 라벨 정규화의 구현 방향을 설명하고 사용자 승인을 받는다.
+
+## 2026-08-06 — 단계 3 JSON 로드와 라벨 정규화 구현
+
+### 변경 파일
+
+- `src/data_loader.py`
+- `src/json_mode.py`
+- `src/menu.py`
+- `AGENTS.md`
+- `evidence/manual-mode-success.md`
+- `evidence/invalid-input.md`
+- `README.md`
+- `MISSION.md`
+- `docs/requirements.md`
+- `docs/progress.md`
+- `docs/worklog.md`
+
+### 수행 내용
+
+- 저장소 루트 기준 `data.json` UTF-8 로드 구현
+- 파일 없음, 권한, 일반 읽기 오류와 JSON 문법 오류 구분 처리
+- 최상위 `filters`, `patterns` 객체 검증 구현
+- `size_N_idx` 패턴 키에서 크기 N 추출 구현
+- 패턴 크기에 대응하는 `filters.size_N` 선택 구현
+- expected `+`와 `x`를 Cross/X로 정규화
+- 필터 키 `cross`와 `x`를 Cross/X로 정규화
+- 패턴과 필터의 숫자 정사각형 구조 및 크기 일치 검증
+- 케이스 한 건의 구조 오류가 다음 케이스 확인을 막지 않도록 처리
+- 메뉴 2번에 JSON 로드 및 정규화 결과 출력 연결
+- 사용자가 이미 변경한 간결한 evidence 파일명을 유지하고 문서 참조 갱신
+- 향후 실행 로그 파일명에 요구사항 번호를 사용하지 않는 방침 반영
+
+### Codex 실행 여부
+
+- 코드 실행 없음
+- 유닛 테스트 작성 및 실행 없음
+- Git 명령 실행 없음
+- JSON 로드 결과 미확인
+
+### 다음 작업
+
+사용자가 메뉴 2번을 실행해 필터 크기, 패턴 6개, 정규화 라벨과 로드 요약을 확인한다. 결과는 `evidence/json-load.md`에 기록한다.
+
+## 2026-08-06 — JSON 로드와 정규화 실행 결과 반영
+
+### 사용자 제공 실행 결과
+
+- 필터 크기: 5, 13, 25
+- 패턴 수: 6
+- 5×5, 13×13, 25×25 패턴 각각 2건
+- expected `x` 3건이 `X`로 출력됨
+- expected `+` 3건이 `Cross`로 출력됨
+- 모든 케이스에서 Cross/X 필터 연결 확인
+- 정상 케이스: 6
+- 구조 오류 케이스: 0
+
+### 변경 파일
+
+- `evidence/json-load.md`
+- `README.md`
+- `docs/requirements.md`
+- `docs/progress.md`
+- `docs/worklog.md`
+
+### 실제 결과
+
+- JSON 모드 진입과 정상 파일 로드 확인
+- 패턴 키의 크기 추출 확인
+- 패턴 크기에 맞는 필터 선택 확인
+- expected와 필터 라벨의 내부 Cross/X 표준화 확인
+- MAC 점수와 PASS/FAIL은 현재 출력하지 않음
+
+### Codex 실행 여부
+
+- 코드 실행 없음
+- 유닛 테스트 작성 및 실행 없음
+- Git 명령 실행 없음
+
+### 다음 작업
+
+단계 4 JSON 케이스별 MAC 판정, PASS/FAIL과 전체 결과 요약의 구현 방향을 설명하고 사용자 승인을 받는다.
