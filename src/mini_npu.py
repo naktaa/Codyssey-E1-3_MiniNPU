@@ -1,11 +1,13 @@
-"""Mini NPU의 핵심 MAC 연산과 점수 판정 로직."""
+"""Mini NPU의 핵심 MAC 연산, 점수 판정과 성능 측정 로직."""
 
 import math
+import time
 from numbers import Real
 from typing import Sequence
 
 
 DEFAULT_EPSILON = 1e-9
+MIN_TIMING_REPETITIONS = 10
 LABEL_CROSS = "Cross"
 LABEL_X = "X"
 LABEL_UNDECIDED = "UNDECIDED"
@@ -90,6 +92,41 @@ def classify_scores(
     if cross > x_score:
         return LABEL_CROSS
     return LABEL_X
+
+
+def measure_average_mac_time_ms(
+    pattern: Sequence[Sequence[Real]],
+    filter_matrix: Sequence[Sequence[Real]],
+    repetitions: int,
+) -> float:
+    """calculate_mac 한 번의 평균 실행 시간을 밀리초 단위로 반환한다.
+
+    파일 읽기와 콘솔 출력은 측정하지 않는다. 반복문 전체를
+    perf_counter_ns로 한 번 측정해 타이머 호출 오버헤드를 줄인다.
+    """
+
+    if isinstance(repetitions, bool) or not isinstance(repetitions, int):
+        raise ValueError("repetitions must be an integer.")
+    if repetitions < MIN_TIMING_REPETITIONS:
+        raise ValueError(
+            f"repetitions must be at least {MIN_TIMING_REPETITIONS}."
+        )
+
+    # 잘못된 입력이 측정 도중 발견되지 않도록 측정 전에 한 번 검증한다.
+    pattern_size = validate_square_matrix(pattern, "pattern")
+    filter_size = validate_square_matrix(filter_matrix, "filter")
+    if pattern_size != filter_size:
+        raise ValueError(
+            "pattern and filter sizes must match: "
+            f"got {pattern_size}x{pattern_size} and {filter_size}x{filter_size}."
+        )
+
+    started_ns = time.perf_counter_ns()
+    for _ in range(repetitions):
+        calculate_mac(pattern, filter_matrix)
+    elapsed_ns = time.perf_counter_ns() - started_ns
+
+    return elapsed_ns / repetitions / 1_000_000.0
 
 
 def _validated_number(value: Real, name: str) -> float:

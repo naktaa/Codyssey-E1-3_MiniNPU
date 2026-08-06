@@ -174,18 +174,17 @@ codyssey-e1-3-mini-npu
 
 실제 실행 후에만 저장한다.
 
-- `evidence/FUNC-006-manual-mode-cross.txt`
-  - 3×3 Cross/X 필터와 패턴 실행 결과
-- `evidence/FUNC-004-invalid-input.png`
-  - 열 개수 오류 또는 숫자 파싱 오류 후 재입력 화면
-- `evidence/DATA-005-size-mismatch.txt`
+- `evidence/FUNC-008-manual-mode-x.md`
+  - 3×3 Cross/X 필터와 X 판정 실행 결과
+- `evidence/FUNC-007-invalid-input.md`
+  - 열 개수 오류와 숫자 파싱 오류 후 같은 행 재입력 로그
+- `evidence/DATA-006-size-mismatch.md`
   - 크기 불일치 케이스가 FAIL 처리되고 다음 케이스가 계속된 결과
-- `evidence/FUNC-013-json-summary.txt`
+- `evidence/FUNC-013-json-summary.md`
   - 전체 테스트·통과·실패와 실패 목록
-- `evidence/PERF-003-performance-table.txt`
+- `evidence/PERF-003-performance-table.md`
   - 3×3·5×5·13×13·25×25 성능 표
-- `evidence/TEST-001-unittest.txt`
-  - 자동 테스트를 실제로 작성하고 통과한 경우에만 저장
+- 유닛 테스트 증거는 사용자 작업 방침에 따라 생성하지 않음
 
 텍스트 로그로 충분한 결과는 스크린샷을 강제하지 않는다.
 
