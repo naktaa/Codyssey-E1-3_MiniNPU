@@ -3,6 +3,8 @@
 from dataclasses import dataclass
 from typing import List, Optional, Sequence
 
+from src.performance import PerformanceResult
+
 
 @dataclass(frozen=True)
 class CaseResult:
@@ -59,3 +61,27 @@ def print_summary(results: Sequence[CaseResult], epsilon: float) -> None:
     for result in failed_results:
         reason = result.reason or "원인을 확인할 수 없습니다."
         print(f"- {result.case_id}: {reason}")
+
+
+def print_performance_report(results: Sequence[PerformanceResult]) -> None:
+    """크기별 평균 MAC 시간, N² 연산 수와 측정 조건을 출력한다."""
+
+    print("\n[크기별 MAC 성능]")
+    print("크기 | 평균 시간(ms) | N² 연산 수 | 반복 횟수 | 입력 출처")
+    print("-" * 78)
+
+    for result in results:
+        print(
+            f"{result.size}x{result.size} | "
+            f"{result.average_time_ms:.6f} | "
+            f"{result.operation_count} | "
+            f"{result.repetitions} | "
+            f"{result.source}"
+        )
+
+    print("\n[측정 조건]")
+    print("측정 대상: 패턴과 Cross 필터의 calculate_mac() 1회")
+    print("포함 시간: calculate_mac() 내부 행렬 검증과 이중 반복문 MAC")
+    print("제외 시간: data.json 읽기와 콘솔 출력")
+    print("복잡도: N×N의 모든 위치를 방문하므로 O(N²)")
+    print("참고: 실제 시간은 Python과 시스템 상태에 따라 N² 비율과 다를 수 있습니다.")

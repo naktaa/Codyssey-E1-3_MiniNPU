@@ -9,7 +9,13 @@ from src.data_loader import (
     load_data,
 )
 from src.mini_npu import DEFAULT_EPSILON, calculate_mac, classify_scores
-from src.report import CaseResult, print_case_result, print_summary
+from src.performance import measure_size_performance
+from src.report import (
+    CaseResult,
+    print_case_result,
+    print_performance_report,
+    print_summary,
+)
 
 
 def run_json_mode() -> None:
@@ -30,6 +36,7 @@ def run_json_mode() -> None:
     print("\n[케이스별 결과]")
 
     results = []
+    performance_cases = {}
 
     for case_id, raw_case in raw_cases:
         try:
@@ -69,6 +76,9 @@ def run_json_mode() -> None:
             print_case_result(result)
             continue
 
+        if pattern_case.size not in performance_cases:
+            performance_cases[pattern_case.size] = pattern_case
+
         passed = predicted == pattern_case.expected
         reason = None
         if not passed:
@@ -89,3 +99,11 @@ def run_json_mode() -> None:
         print_case_result(result)
 
     print_summary(results, DEFAULT_EPSILON)
+
+    try:
+        performance_results = measure_size_performance(performance_cases)
+    except ValueError as error:
+        print(f"\n성능 분석 실패: {error}")
+        return
+
+    print_performance_report(performance_results)

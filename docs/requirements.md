@@ -39,10 +39,10 @@
 | DATA-008 | expected `+`를 `Cross`, `x`를 `X`로 정규화 | 필수 | `src/data_loader.py` | 라벨 변환 수동 확인 | `evidence/json-load.md` | 3 | `Feat: JSON 데이터 로드와 스키마 검증 구현` | 증거 확보 완료 |
 | DATA-009 | filter key `cross`를 `Cross`, `x`를 `X`로 정규화 | 필수 | `src/data_loader.py` | 라벨 변환 수동 확인 | `evidence/json-load.md` | 3 | 동일 | 실행 검증 완료 |
 | DATA-010 | 내부 비교와 출력에 표준 라벨 Cross/X 사용 | 필수 | 전체 | 원본 라벨이 결과 비교에 남지 않는지 확인 | `evidence/json-analysis.md` | 3, 4 | 동일 | 증거 확보 완료 |
-| PERF-001 | MAC 함수 호출 구간 중심으로 시간 측정 | 필수 | `src/mini_npu.py` | 측정 코드에 I/O 미포함 확인 | 코드 리뷰 + 로그 | 5 | `Feat: 크기별 MAC 성능 분석 구현` | 구현 중 (3×3 완료) |
-| PERF-002 | 크기별 최소 10회 반복 후 평균 계산 | 필수 | `src/mini_npu.py` | 반복 횟수 확인 및 평균 재계산 | 성능 로그 | 5 | 동일 | 구현 중 (공통 함수 완료) |
-| PERF-003 | 3×3·5×5·13×13·25×25 성능 분석 | 필수 | `main.py`, `src/mini_npu.py` | 네 행 모두 출력 | `evidence/performance.md` | 5 | 동일 | 예정 |
-| PERF-004 | 크기/평균 ms/N² 연산 횟수 표 출력 | 필수 | `src/report.py` 또는 성능 출력 모듈 | 9, 25, 169, 625 확인 | 동일 로그 | 5 | 동일 | 예정 |
+| PERF-001 | MAC 함수 호출 구간 중심으로 시간 측정 | 필수 | `src/mini_npu.py`, `src/performance.py` | 측정 코드에 I/O 미포함 확인 | 코드 리뷰 + `evidence/performance.md` | 5 | `Feat: 크기별 MAC 성능 분석 구현` | 증거 확보 완료 |
+| PERF-002 | 크기별 최소 10회 반복 후 평균 계산 | 필수 | `src/mini_npu.py`, `src/performance.py` | 크기별 1,000회와 평균 출력 확인 | `evidence/performance.md` | 5 | 동일 | 증거 확보 완료 |
+| PERF-003 | 3×3·5×5·13×13·25×25 성능 분석 | 필수 | `src/performance.py`, `src/report.py` | 네 행 모두 출력 | `evidence/performance.md` | 5 | 동일 | 증거 확보 완료 |
+| PERF-004 | 크기/평균 ms/N² 연산 횟수 표 출력 | 필수 | `src/report.py` | 9, 25, 169, 625 확인 | `evidence/performance.md` | 5 | 동일 | 증거 확보 완료 |
 | TECH-001 | Python 3.8 이상에서 실행 | 필수 | 전체 | `python3 --version`, 실행 | 환경 로그 | 6 | `Test: 필수 시나리오 검증` | 예정 |
 | TECH-002 | 외부 라이브러리 없이 표준 라이브러리만 사용 | 필수 | 전체 | import 목록과 의존성 파일 확인 | 코드 리뷰 | 6 | 동일 | 예정 |
 | TECH-003 | MAC에 벡터화 라이브러리 사용 금지, 반복문 직접 구현 | 필수 | `src/mini_npu.py` | 코드 리뷰와 사용자 수동 검증 | 코드 리뷰 | 1 | `Feat: MAC 연산과 판정 로직 구현` | 구현 완료 |
@@ -53,13 +53,13 @@
 | TEST-004 | 모드 2 총합과 개별 PASS/FAIL 수동 검증 | 필수 | 실행 결과 | 실제 data.json 결과 대조 | `evidence/json-analysis.md` | 6 | 동일 | 실행 검증 완료 |
 | DOC-001 | README 실행 방법 작성 | 필수 | `README.md` | 실제 명령·경로와 대조 | README | 6 | `Docs: 실행 방법과 결과 리포트 작성` | 구현 완료 (실행 검증 전) |
 | DOC-002 | README 라벨 정규화·MAC·epsilon 구현 요약 | 필수 | `README.md` | 실제 코드와 대조 | README | 6 | 동일 | 구현 완료 |
-| DOC-003 | README 결과 리포트 10줄 이상 작성 | 필수 | `README.md` | 줄 수와 실제 결과 확인 | README | 6 | 동일 | 예정 |
-| DOC-004 | README 실패 원인과 O(N²) 분석 작성 | 필수 | `README.md` | 측정값·실패 로그와 대조 | README | 6 | 동일 | 예정 |
+| DOC-003 | README 결과 리포트 10줄 이상 작성 | 필수 | `README.md` | 줄 수와 실제 결과 확인 | README | 6 | 동일 | 문서 반영 완료 |
+| DOC-004 | README 실패 원인과 O(N²) 분석 작성 | 필수 | `README.md` | 측정값·실패 로그와 대조 | README | 6 | 동일 | 문서 반영 완료 |
 | EVID-001 | 사용자 모드 정상 실행 결과 확보 | 권장 | `evidence/` | 실제 실행 로그 저장 | Markdown 로그 | 6 | `Test: 필수 시나리오 검증` | 증거 확보 완료 |
 | EVID-002 | 잘못된 사용자 입력 재입력 증거 확보 | 권장 | `evidence/` | 실제 입력과 재시도 흐름 기록 | Markdown 로그 | 6 | 동일 | 증거 확보 완료 |
 | EVID-003 | JSON 크기 불일치 케이스 FAIL 증거 확보 | 권장 | `evidence/` | 실제 오류 데이터 실행 | Markdown 로그 | 6 | 동일 | 예정 |
 | EVID-004 | JSON 전체 결과 요약 증거 확보 | 권장 | `evidence/` | 실제 분석 로그 저장 | `evidence/json-analysis.md` | 6 | 동일 | 증거 확보 완료 |
-| EVID-005 | 성능 표 증거 확보 | 권장 | `evidence/` | 실제 측정 로그 저장 | Markdown 로그 | 6 | 동일 | 예정 |
+| EVID-005 | 성능 표 증거 확보 | 권장 | `evidence/` | 실제 측정 로그 저장 | `evidence/performance.md` | 6 | 동일 | 증거 확보 완료 |
 | ENV-001 | 최종 결과를 교육장 macOS zsh에서 재현 | 필수 | 전체 | 깨끗한 실행 절차 재검증 | 최종 로그 | 6 | `Test: macOS 최종 재현 검증` | 예정 |
 | GIT-001 | 기능 단위 커밋으로 변경 이력 관리 | 권장 | Git | `git log --oneline --graph` 확인 | Git 로그 | 전 단계 | 단계별 권장 메시지 | 예정 |
 | BONUS-001 | 2차원 배열을 1차원으로 변환한 최적화 비교 | 선택 | 별도 결정 | 동일 입력·반복 비교 | 성능 로그 | 필수 완료 후 | `Feat: 1차원 MAC 최적화 비교 추가` | 예정 |
