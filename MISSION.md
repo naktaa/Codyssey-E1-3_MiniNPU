@@ -177,6 +177,8 @@ commit, push와 merge는 사용자가 직접 수행한다. Codex는 구현이 �
   - 전체 테스트·통과·실패와 실패 목록
 - `evidence/performance.md`
   - 3×3·5×5·13×13·25×25 성능 표
+- `evidence/final-run.md`
+  - `python3 main.py` 기준 최종 JSON 판정과 성능 재현 결과
 - 유닛 테스트 증거는 사용자 작업 방침에 따라 생성하지 않음
 
 텍스트 로그로 충분한 결과는 스크린샷을 강제하지 않는다.

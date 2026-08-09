@@ -49,7 +49,7 @@
 | TECH-004 | 오류 하나로 프로그램 전체 비정상 종료 방지 | 필수 | `src/menu.py`, `src/data_loader.py`, `src/json_mode.py` | 오류 입력/오류 케이스 후 계속 실행 | Markdown 오류 처리 로그 | 2~4 | 관련 기능 커밋 | 구현 완료 (JSON 오류 검증 전) |
 | TEST-003 | 모드 1 재현 시나리오 수동 검증 | 필수 | 실행 결과 | 예시 필터·패턴 입력 | `evidence/manual-mode-success.md` | 6 | `Test: 필수 시나리오 검증` | 실행 검증 완료 |
 | TEST-004 | 모드 2 총합과 개별 PASS/FAIL 수동 검증 | 필수 | 실행 결과 | 실제 data.json 결과 대조 | `evidence/json-analysis.md` | 6 | 동일 | 실행 검증 완료 |
-| DOC-001 | README 실행 방법 작성 | 필수 | `README.md` | `python3 main.py` 최종 재현 | README | 6 | `Docs: 실행 방법과 결과 리포트 작성` | 구현 완료 (최종 명령 재현 전) |
+| DOC-001 | README 실행 방법 작성 | 필수 | `README.md` | `python3 main.py` 최종 재현 | `evidence/final-run.md` | 6 | `Docs: 실행 방법과 결과 리포트 작성` | 증거 확보 완료 |
 | DOC-002 | README 라벨 정규화·MAC·epsilon 구현 요약 | 필수 | `README.md` | 실제 코드와 대조 | README | 6 | 동일 | 문서 반영 완료 |
 | DOC-003 | README 결과 리포트 10줄 이상 작성 | 필수 | `README.md` | 줄 수와 실제 결과 확인 | README | 6 | 동일 | 문서 반영 완료 |
 | DOC-004 | README 실패 원인과 O(N²) 분석 작성 | 필수 | `README.md` | 측정값·실패 로그와 대조 | README | 6 | 동일 | 문서 반영 완료 |
@@ -58,7 +58,7 @@
 | EVID-003 | JSON 크기 불일치 케이스 FAIL 증거 확보 | 권장 | `evidence/` | 실제 오류 데이터 실행 | Markdown 로그 | 6 | 동일 | 예정 |
 | EVID-004 | JSON 전체 결과 요약 증거 확보 | 권장 | `evidence/` | 실제 분석 로그 저장 | `evidence/json-analysis.md` | 6 | 동일 | 증거 확보 완료 |
 | EVID-005 | 성능 표 증거 확보 | 권장 | `evidence/` | 실제 측정 로그 저장 | `evidence/performance.md` | 6 | 동일 | 증거 확보 완료 |
-| ENV-001 | 최종 결과를 교육장 macOS zsh에서 재현 | 필수 | 전체 | 깨끗한 실행 절차 재검증 | 최종 로그 | 6 | `Test: macOS 최종 재현 검증` | 예정 |
+| ENV-001 | 최종 결과를 교육장 macOS zsh에서 재현 | 필수 | 전체 | `python3 main.py` 실행과 메뉴 2 결과 확인 | `evidence/final-run.md` | 6 | `Test: macOS 최종 재현 검증` | 증거 확보 완료 |
 | BONUS-001 | 2차원 배열을 1차원으로 변환한 최적화 비교 | 선택 | 별도 결정 | 동일 입력·반복 비교 | 성능 로그 | 필수 완료 후 | `Feat: 1차원 MAC 최적화 비교 추가` | 예정 |
 | BONUS-002 | N×N Cross/X 패턴 생성기 | 선택 | 별도 결정 | 홀수 N 패턴 수동 검증 | Markdown 실행 로그 | 필수 완료 후 | `Feat: 패턴 생성기 추가` | 예정 |
 
@@ -66,7 +66,6 @@
 
 - 필터·패턴 크기 불일치가 케이스 단위 FAIL 처리되고 다음 케이스로 계속되는지 확인
 - `data.json` 파일 없음, UTF-8 인코딩 오류와 손상 JSON의 모드 오류 처리 확인
-- `python3 main.py` 기준 최종 macOS 재현
 
 ## 확인된 data.json 구조
 
