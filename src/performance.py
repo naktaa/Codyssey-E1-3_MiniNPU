@@ -1,10 +1,15 @@
 """3x3·5x5·13x13·25x25 MAC 성능 측정."""
 
+import time
 from dataclasses import dataclass
 from typing import List, Mapping, Sequence, Tuple
 
 from src.data_loader import Matrix, PatternCase
-from src.mini_npu import measure_average_mac_time_ms
+from src.mini_npu import (
+    calculate_mac_1d,
+    flatten_matrix,
+    measure_average_mac_time_ms,
+)
 
 
 PERFORMANCE_REPETITIONS = 1_000
@@ -42,6 +47,38 @@ def measure_size_performance(
             filter_cross,
             repetitions,
         )
+        results.append(
+            PerformanceResult(
+                size=size,
+                average_time_ms=average_time_ms,
+                operation_count=size * size,
+                repetitions=repetitions,
+                source=source,
+            )
+        )
+
+    return results
+
+
+def measure_1d_performance(
+    pattern_cases: Mapping[int, PatternCase],
+    repetitions: int = PERFORMANCE_REPETITIONS,
+) -> List[PerformanceResult]:
+    """필수 네 크기의 1차원 calculate_mac_1d 평균 시간을 측정한다."""
+
+    results = []
+
+    for size in REQUIRED_SIZES:
+        pattern, filter_cross, source = _measurement_input(size, pattern_cases)
+        flat_pattern = flatten_matrix(pattern)
+        flat_filter = flatten_matrix(filter_cross)
+
+        started_ns = time.perf_counter_ns()
+        for _ in range(repetitions):
+            calculate_mac_1d(flat_pattern, flat_filter)
+        elapsed_ns = time.perf_counter_ns() - started_ns
+        average_time_ms = elapsed_ns / repetitions / 1_000_000.0
+
         results.append(
             PerformanceResult(
                 size=size,

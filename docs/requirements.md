@@ -59,7 +59,7 @@
 | EVID-004 | JSON 전체 결과 요약 증거 확보 | 권장 | `evidence/` | 실제 분석 로그 저장 | `evidence/json-analysis.md` | 6 | 동일 | 증거 확보 완료 |
 | EVID-005 | 성능 표 증거 확보 | 권장 | `evidence/` | 실제 측정 로그 저장 | `evidence/performance.md` | 6 | 동일 | 증거 확보 완료 |
 | ENV-001 | 최종 결과를 교육장 macOS zsh에서 재현 | 필수 | 전체 | `python3 main.py` 실행과 메뉴 2 결과 확인 | `evidence/final-run.md` | 6 | `Test: macOS 최종 재현 검증` | 증거 확보 완료 |
-| BONUS-001 | 2차원 배열을 1차원으로 변환한 최적화 비교 | 선택 | 별도 결정 | 동일 입력·반복 비교 | 성능 로그 | 필수 완료 후 | `Feat: 1차원 MAC 최적화 비교 추가` | 예정 |
+| BONUS-001 | 2차원 배열을 1차원으로 변환한 최적화 비교 | 선택 | `src/mini_npu.py`, `src/performance.py`, `src/report.py` | 네 크기의 1차원 평균 시간 확인 후 기존 2차원 기록과 분석 | `evidence/one-dimensional-performance.md` | 7 | `Feat: 1차원 MAC 최적화 비교 추가` | 증거 확보 완료 |
 | BONUS-002 | N×N Cross/X 패턴 생성기 | 선택 | 별도 결정 | 홀수 N 패턴 수동 검증 | Markdown 실행 로그 | 필수 완료 후 | `Feat: 패턴 생성기 추가` | 예정 |
 
 ## 별도 실행을 생략한 항목

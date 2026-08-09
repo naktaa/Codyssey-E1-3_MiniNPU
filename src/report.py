@@ -85,3 +85,26 @@ def print_performance_report(results: Sequence[PerformanceResult]) -> None:
     print("제외 시간: data.json 읽기와 콘솔 출력")
     print("복잡도: N×N의 모든 위치를 방문하므로 O(N²)")
     print("참고: 실제 시간은 Python과 시스템 상태에 따라 N² 비율과 다를 수 있습니다.")
+
+
+def print_1d_performance_report(results: Sequence[PerformanceResult]) -> None:
+    """보너스 1차원 MAC의 크기별 성능 표를 출력한다."""
+
+    print("\n[보너스: 1차원 MAC 성능]")
+    print("크기 | 평균 시간(ms) | N² 연산 수 | 반복 횟수 | 입력 출처")
+    print("-" * 78)
+
+    for result in results:
+        print(
+            f"{result.size}x{result.size} | "
+            f"{result.average_time_ms:.6f} | "
+            f"{result.operation_count} | "
+            f"{result.repetitions} | "
+            f"{result.source}"
+        )
+
+    print("\n[보너스 측정 조건]")
+    print("변환 방식: 2차원 행렬을 행 순서대로 1차원 리스트에 저장")
+    print("측정 대상: 1차원 calculate_mac_1d() 1회")
+    print("제외 시간: 2차원에서 1차원으로 변환하는 시간과 콘솔 출력")
+    print("비교 방법: 기존 2차원 성능 기록과 이 표를 문서에서 비교")

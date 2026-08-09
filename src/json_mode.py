@@ -9,10 +9,11 @@ from src.data_loader import (
     load_data,
 )
 from src.mini_npu import DEFAULT_EPSILON, calculate_mac, classify_scores
-from src.performance import measure_size_performance
+from src.performance import measure_1d_performance, measure_size_performance
 from src.report import (
     CaseResult,
     print_case_result,
+    print_1d_performance_report,
     print_performance_report,
     print_summary,
 )
@@ -107,3 +108,11 @@ def run_json_mode() -> None:
         return
 
     print_performance_report(performance_results)
+
+    try:
+        one_d_results = measure_1d_performance(performance_cases)
+    except ValueError as error:
+        print(f"\n보너스 성능 분석 실패: {error}")
+        return
+
+    print_1d_performance_report(one_d_results)

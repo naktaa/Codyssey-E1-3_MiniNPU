@@ -3,7 +3,7 @@
 import math
 import time
 from numbers import Real
-from typing import Sequence
+from typing import List, Sequence
 
 
 DEFAULT_EPSILON = 1e-9
@@ -74,6 +74,41 @@ def calculate_mac(
     return score
 
 
+def flatten_matrix(matrix: Sequence[Sequence[Real]]) -> List[float]:
+    """2차원 정사각형 행렬을 행 순서의 1차원 리스트로 변환한다."""
+
+    size = validate_square_matrix(matrix)
+    flattened = []
+
+    for row_index in range(size):
+        for column_index in range(size):
+            flattened.append(float(matrix[row_index][column_index]))
+
+    return flattened
+
+
+def calculate_mac_1d(
+    pattern: Sequence[Real],
+    filter_values: Sequence[Real],
+) -> float:
+    """같은 위치의 1차원 패턴과 필터 값을 곱해 누적한다."""
+
+    pattern_length = _validate_flat_vector(pattern, "pattern")
+    filter_length = _validate_flat_vector(filter_values, "filter")
+
+    if pattern_length != filter_length:
+        raise ValueError(
+            "pattern and filter lengths must match: "
+            f"got {pattern_length} and {filter_length}."
+        )
+
+    score = 0.0
+    for index in range(pattern_length):
+        score += float(pattern[index]) * float(filter_values[index])
+
+    return score
+
+
 def classify_scores(
     score_cross: Real,
     score_x: Real,
@@ -139,3 +174,20 @@ def _validated_number(value: Real, name: str) -> float:
     if not math.isfinite(converted):
         raise ValueError(f"{name} must be finite.")
     return converted
+
+
+def _validate_flat_vector(values: Sequence[Real], name: str) -> int:
+    """1차원 MAC 입력이 비어 있지 않은 유한 숫자 목록인지 확인한다."""
+
+    if isinstance(values, (str, bytes)) or not isinstance(values, Sequence):
+        raise ValueError(f"{name} must be a one-dimensional sequence.")
+    if len(values) == 0:
+        raise ValueError(f"{name} must not be empty.")
+
+    for index, value in enumerate(values):
+        if isinstance(value, bool) or not isinstance(value, Real):
+            raise ValueError(f"{name}[{index}] must be a number.")
+        if not math.isfinite(float(value)):
+            raise ValueError(f"{name}[{index}] must be finite.")
+
+    return len(values)
