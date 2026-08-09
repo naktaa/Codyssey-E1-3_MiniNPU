@@ -3,25 +3,115 @@
 import math
 from typing import List
 
+from src.data_loader import (
+    DataLoadError,
+    DataValidationError,
+    get_filter_pair,
+    load_data,
+)
 from src.mini_npu import (
+    LABEL_CROSS,
     LABEL_UNDECIDED,
+    LABEL_X,
     calculate_mac,
     classify_scores,
     measure_average_mac_time_ms,
 )
+from src.pattern_generator import MatrixStore, generate_filter_pair, read_matrix_size
 
 
 MATRIX_SIZE = 3
 TIMING_REPETITIONS = 1_000
 
 
-def run_manual_mode() -> None:
-    """두 필터와 패턴을 입력받아 점수, 판정과 평균 MAC 시간을 출력한다."""
+def run_manual_mode(matrix_store: MatrixStore) -> None:
+    """직접 3×3 입력 또는 저장된 N×N 필터로 패턴을 판정한다."""
 
-    print("\n[3x3 사용자 입력 모드]")
+    print("\n[사용자 입력 모드]")
+    print("1. 기존 3x3 필터와 패턴 직접 입력")
+    print("2. 크기 선택 후 저장 또는 자동 생성 필터 사용")
+
+    while True:
+        choice = input("입력 방식을 선택하세요: ").strip()
+        if choice == "1":
+            _run_direct_3x3_mode(matrix_store)
+            return
+        if choice == "2":
+            _run_sized_mode(matrix_store)
+            return
+        print("입력 오류: 1 또는 2를 입력하세요.")
+
+
+def _run_direct_3x3_mode(matrix_store: MatrixStore) -> None:
+    """기존 방식으로 두 3×3 필터와 패턴을 직접 입력받는다."""
+
+    print("\n[3x3 직접 입력]")
     filter_cross = read_matrix("필터 A (Cross)")
     filter_x = read_matrix("필터 B (X)")
     pattern = read_matrix("패턴")
+
+    matrix_store[MATRIX_SIZE] = {
+        "filters": {
+            LABEL_CROSS: filter_cross,
+            LABEL_X: filter_x,
+        },
+        "pattern": pattern,
+        "source": "모드 1 직접 입력 3x3",
+    }
+
+    _print_mac_result(pattern, filter_cross, filter_x, MATRIX_SIZE)
+
+
+def _run_sized_mode(matrix_store: MatrixStore) -> None:
+    """선택한 크기의 저장 필터를 사용하고 없으면 자동 생성한다."""
+
+    print("\n[N×N 패턴 입력]")
+    size = read_matrix_size()
+
+    if size not in matrix_store:
+        filters = _load_or_generate_filters(size)
+        matrix_store[size] = {
+            "filters": filters,
+            "pattern": filters[LABEL_CROSS],
+            "source": f"자동 선택 {size}x{size} Cross 패턴",
+        }
+    else:
+        print(f"{size}x{size} 저장 필터를 사용합니다.")
+
+    pattern = read_matrix("패턴", size)
+    filters = matrix_store[size]["filters"]
+    matrix_store[size]["pattern"] = pattern
+    matrix_store[size]["source"] = f"모드 1 사용자 입력 {size}x{size}"
+
+    _print_mac_result(
+        pattern,
+        filters[LABEL_CROSS],
+        filters[LABEL_X],
+        size,
+    )
+
+
+def _load_or_generate_filters(size: int):
+    """data.json에 같은 크기 필터가 있으면 사용하고 없으면 생성한다."""
+
+    try:
+        document = load_data()
+        filters = get_filter_pair(document, size)
+    except (DataLoadError, DataValidationError):
+        print(f"{size}x{size} 저장 필터가 없어 자동으로 생성합니다.")
+        return generate_filter_pair(size)
+
+    print(f"data.json의 {size}x{size} 필터를 사용합니다.")
+    return filters
+
+
+def _print_mac_result(
+    pattern,
+    filter_cross,
+    filter_x,
+    size: int,
+) -> None:
+    """패턴 판정과 한 번의 Cross MAC 평균 시간을 출력한다."""
 
     score_cross = calculate_mac(pattern, filter_cross)
     score_x = calculate_mac(pattern, filter_x)
@@ -40,9 +130,9 @@ def run_manual_mode() -> None:
     else:
         print(f"판정: {result}")
 
-    print("\n[3x3 MAC 성능]")
+    print(f"\n[{size}x{size} MAC 성능]")
     print(f"평균 시간: {average_time_ms:.6f} ms")
-    print("측정 대상: 패턴과 필터 A (Cross)의 calculate_mac() 1회")
+    print("측정 대상: 패턴과 Cross 필터의 calculate_mac() 1회")
     print(f"반복 횟수: {TIMING_REPETITIONS}회")
 
 

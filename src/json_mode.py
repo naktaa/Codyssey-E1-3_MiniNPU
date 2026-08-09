@@ -10,6 +10,7 @@ from src.data_loader import (
 )
 from src.mini_npu import DEFAULT_EPSILON, calculate_mac, classify_scores
 from src.performance import measure_1d_performance, measure_size_performance
+from src.pattern_generator import MatrixStore
 from src.report import (
     CaseResult,
     print_case_result,
@@ -19,7 +20,7 @@ from src.report import (
 )
 
 
-def run_json_mode() -> None:
+def run_json_mode(matrix_store: MatrixStore) -> None:
     """data.json을 읽어 케이스별 MAC 판정과 전체 결과를 출력한다."""
 
     print("\n[data.json 일괄 분석]")
@@ -80,6 +81,16 @@ def run_json_mode() -> None:
         if pattern_case.size not in performance_cases:
             performance_cases[pattern_case.size] = pattern_case
 
+        if pattern_case.size not in matrix_store:
+            matrix_store[pattern_case.size] = {
+                "filters": {
+                    "Cross": pattern_case.filter_cross,
+                    "X": pattern_case.filter_x,
+                },
+                "pattern": pattern_case.pattern,
+                "source": f"data.json {pattern_case.case_id}",
+            }
+
         passed = predicted == pattern_case.expected
         reason = None
         if not passed:
@@ -102,7 +113,10 @@ def run_json_mode() -> None:
     print_summary(results, DEFAULT_EPSILON)
 
     try:
-        performance_results = measure_size_performance(performance_cases)
+        performance_results = measure_size_performance(
+            performance_cases,
+            matrix_store,
+        )
     except ValueError as error:
         print(f"\n성능 분석 실패: {error}")
         return
@@ -110,7 +124,10 @@ def run_json_mode() -> None:
     print_performance_report(performance_results)
 
     try:
-        one_d_results = measure_1d_performance(performance_cases)
+        one_d_results = measure_1d_performance(
+            performance_cases,
+            matrix_store,
+        )
     except ValueError as error:
         print(f"\n보너스 성능 분석 실패: {error}")
         return
