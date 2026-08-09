@@ -1,5 +1,7 @@
 # E1-3 Mini NPU 시뮬레이터 미션
 
+> 첨부된 미션 전문은 [docs/mission-original.md](docs/mission-original.md)에 보관한다. 이 문서는 구현에 맞게 정리한 요약본이다.
+
 ## 1. 미션 목적
 
 2차원 숫자 배열로 표현한 패턴과 필터 사이의 MAC(Multiply-Accumulate) 점수를 반복문으로 계산하고, 점수 비교를 통해 패턴을 판정하는 Python 콘솔 애플리케이션을 구현한다.

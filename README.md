@@ -76,6 +76,7 @@ python3 main.py
 │   └── report.py           # 판정 결과, 요약과 성능 비교 표 출력
 ├── data.json               # 5×5·13×13·25×25 원본 데이터
 ├── docs/
+│   └── mission-original.md # 첨부된 미션 원문
 ├── evidence/
 ├── AGENTS.md
 ├── MISSION.md
@@ -203,6 +204,7 @@ N×N MAC은 이중 반복문으로 모든 위치를 방문하므로 연산 위�
 
 ## 문서
 
+- [미션 원문](docs/mission-original.md)
 - [미션 요약](MISSION.md)
 - [요구사항 추적표](docs/requirements.md)
 - [현재 진행 상태](docs/progress.md)
