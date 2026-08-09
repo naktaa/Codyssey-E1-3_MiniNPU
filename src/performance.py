@@ -31,7 +31,6 @@ class PerformanceResult:
     average_time_ms: float
     operation_count: int
     repetitions: int
-    source: str
 
 
 def measure_size_performance(
@@ -43,13 +42,10 @@ def measure_size_performance(
 
     results = []
 
-    sizes = list(REQUIRED_SIZES)
-    for size in sorted(matrix_store):
-        if size not in sizes:
-            sizes.append(size)
+    sizes = sorted(set(REQUIRED_SIZES) | set(matrix_store))
 
     for size in sizes:
-        pattern, filter_cross, source = _measurement_input(
+        pattern, filter_cross = _measurement_input(
             size,
             pattern_cases,
             matrix_store,
@@ -65,7 +61,6 @@ def measure_size_performance(
                 average_time_ms=average_time_ms,
                 operation_count=size * size,
                 repetitions=repetitions,
-                source=source,
             )
         )
 
@@ -81,13 +76,10 @@ def measure_1d_performance(
 
     results = []
 
-    sizes = list(REQUIRED_SIZES)
-    for size in sorted(matrix_store):
-        if size not in sizes:
-            sizes.append(size)
+    sizes = sorted(set(REQUIRED_SIZES) | set(matrix_store))
 
     for size in sizes:
-        pattern, filter_cross, source = _measurement_input(
+        pattern, filter_cross = _measurement_input(
             size,
             pattern_cases,
             matrix_store,
@@ -107,7 +99,6 @@ def measure_1d_performance(
                 average_time_ms=average_time_ms,
                 operation_count=size * size,
                 repetitions=repetitions,
-                source=source,
             )
         )
 
@@ -118,20 +109,16 @@ def _measurement_input(
     size: int,
     pattern_cases: Mapping[int, PatternCase],
     matrix_store: MatrixStore,
-) -> Tuple[Sequence[Sequence[float]], Sequence[Sequence[float]], str]:
-    """크기별 패턴, Cross 필터와 입력 출처를 반환한다."""
+) -> Tuple[Sequence[Sequence[float]], Sequence[Sequence[float]]]:
+    """크기별 성능 측정에 사용할 패턴과 Cross 필터를 반환한다."""
 
     if size in matrix_store:
         stored = matrix_store[size]
         filters = stored["filters"]
-        return (
-            stored["pattern"],
-            filters[LABEL_CROSS],
-            stored["source"],
-        )
+        return stored["pattern"], filters[LABEL_CROSS]
 
     if size == 3:
-        return BASELINE_3X3, BASELINE_3X3, "코드 내부 3x3 기준 행렬"
+        return BASELINE_3X3, BASELINE_3X3
 
     if size not in pattern_cases:
         raise ValueError(f"{size}x{size} 성능 측정용 정상 케이스가 없습니다.")
@@ -140,5 +127,4 @@ def _measurement_input(
     return (
         pattern_case.pattern,
         pattern_case.filter_cross,
-        f"data.json {pattern_case.case_id}",
     )

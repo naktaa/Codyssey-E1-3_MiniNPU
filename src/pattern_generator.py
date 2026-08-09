@@ -12,10 +12,10 @@ MatrixStore = Dict[int, Dict[str, Any]]
 def generate_filter_pair(size: int) -> Dict[str, MatrixList]:
     """지정한 크기의 Cross와 X 필터를 0.0과 1.0으로 생성한다."""
 
-    if size < 3:
-        raise ValueError("필터 크기는 3 이상이어야 합니다.")
+    if size < 3 or size % 2 == 0:
+        raise ValueError("필터 크기는 3 이상의 홀수여야 합니다.")
 
-    center_indexes = {(size - 1) // 2, size // 2}
+    center_index = size // 2
     filter_cross = []
     filter_x = []
 
@@ -24,9 +24,7 @@ def generate_filter_pair(size: int) -> Dict[str, MatrixList]:
         x_row = []
 
         for column_index in range(size):
-            is_cross = (
-                row_index in center_indexes or column_index in center_indexes
-            )
+            is_cross = row_index == center_index or column_index == center_index
             is_x = (
                 row_index == column_index
                 or row_index + column_index == size - 1
@@ -49,35 +47,39 @@ def run_filter_generator(matrix_store: MatrixStore) -> None:
     print("\n[N×N Cross/X 필터 생성]")
     size = read_matrix_size()
     filters = generate_filter_pair(size)
+    filter_existed = size in matrix_store
 
     matrix_store[size] = {
         "filters": filters,
         "pattern": filters[LABEL_CROSS],
-        "source": f"자동 생성 {size}x{size} Cross 패턴",
     }
 
-    print(f"\n{size}x{size} Cross 필터")
+    print(f"\n[생성된 {size}x{size} 필터]")
+    print("\n--- Cross ---")
     print_matrix(filters[LABEL_CROSS])
-    print(f"\n{size}x{size} X 필터")
+    print("\n--- X ---")
     print_matrix(filters[LABEL_X])
-    print(f"\n{size}x{size} 필터를 실행 중 저장소에 보관했습니다.")
-    print("같은 크기가 이미 있었다면 새 필터로 교체했습니다.")
+
+    if filter_existed:
+        print(f"\n완료: 기존 {size}x{size} 필터를 교체했습니다.")
+    else:
+        print(f"\n완료: {size}x{size} 필터를 생성했습니다.")
 
 
 def read_matrix_size() -> int:
-    """3 이상의 정수 크기를 입력받는다."""
+    """3 이상의 홀수 크기를 입력받는다."""
 
     while True:
-        raw_size = input("필터 크기 N을 입력하세요 (N≥3): ").strip()
+        raw_size = input("필터 크기 N을 입력하세요 (3 이상의 홀수): ").strip()
 
         try:
             size = int(raw_size)
         except ValueError:
-            print("입력 오류: 3 이상의 정수를 입력하세요.")
+            print("입력 오류: 3 이상의 홀수를 입력하세요.")
             continue
 
-        if size < 3:
-            print("입력 오류: 3 이상의 정수를 입력하세요.")
+        if size < 3 or size % 2 == 0:
+            print("입력 오류: 3 이상의 홀수를 입력하세요.")
             continue
 
         return size

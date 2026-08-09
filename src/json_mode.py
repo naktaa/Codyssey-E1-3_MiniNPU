@@ -88,7 +88,6 @@ def run_json_mode(matrix_store: MatrixStore) -> None:
                     "X": pattern_case.filter_x,
                 },
                 "pattern": pattern_case.pattern,
-                "source": f"data.json {pattern_case.case_id}",
             }
 
         passed = predicted == pattern_case.expected

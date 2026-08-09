@@ -56,7 +56,6 @@ def _run_direct_3x3_mode(matrix_store: MatrixStore) -> None:
             LABEL_X: filter_x,
         },
         "pattern": pattern,
-        "source": "모드 1 직접 입력 3x3",
     }
 
     _print_mac_result(pattern, filter_cross, filter_x, MATRIX_SIZE)
@@ -73,7 +72,6 @@ def _run_sized_mode(matrix_store: MatrixStore) -> None:
         matrix_store[size] = {
             "filters": filters,
             "pattern": filters[LABEL_CROSS],
-            "source": f"자동 선택 {size}x{size} Cross 패턴",
         }
     else:
         print(f"{size}x{size} 저장 필터를 사용합니다.")
@@ -81,7 +79,6 @@ def _run_sized_mode(matrix_store: MatrixStore) -> None:
     pattern = read_matrix("패턴", size)
     filters = matrix_store[size]["filters"]
     matrix_store[size]["pattern"] = pattern
-    matrix_store[size]["source"] = f"모드 1 사용자 입력 {size}x{size}"
 
     _print_mac_result(
         pattern,

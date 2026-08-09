@@ -41,8 +41,8 @@
 | DATA-010 | 내부 비교와 출력에 표준 라벨 Cross/X 사용 | 필수 | 전체 | 원본 라벨이 결과 비교에 남지 않는지 확인 | `evidence/json-analysis.md` | 3, 4 | 동일 | 증거 확보 완료 |
 | PERF-001 | MAC 함수 호출 구간 중심으로 시간 측정 | 필수 | `src/mini_npu.py`, `src/performance.py` | 측정 코드에 I/O 미포함 확인 | 코드 리뷰 + `evidence/performance.md` | 5 | `Feat: 크기별 MAC 성능 분석 구현` | 증거 확보 완료 |
 | PERF-002 | 크기별 최소 10회 반복 후 평균 계산 | 필수 | `src/mini_npu.py`, `src/performance.py` | 크기별 1,000회와 평균 출력 확인 | `evidence/performance.md` | 5 | 동일 | 증거 확보 완료 |
-| PERF-003 | 3×3·5×5·13×13·25×25 성능 분석 | 필수 | `src/performance.py`, `src/report.py` | 네 행 모두 출력 | `evidence/performance.md` | 5 | 동일 | 증거 확보 완료 |
-| PERF-004 | 크기/평균 ms/N² 연산 횟수 표 출력 | 필수 | `src/report.py` | 9, 25, 169, 625 확인 | `evidence/performance.md` | 5 | 동일 | 증거 확보 완료 |
+| PERF-003 | 3×3·5×5·13×13·25×25 성능 분석 | 필수 | `src/performance.py`, `src/report.py` | 네 행 모두 출력 | `evidence/performance.md`, `evidence/clean-performance-output.md` | 5 | 동일 | 증거 확보 완료 |
+| PERF-004 | 크기/평균 ms/N² 연산 횟수 표 출력 | 필수 | `src/report.py` | 9, 25, 169, 625와 고정폭 표 확인 | `evidence/clean-performance-output.md` | 5 | 동일 | 증거 확보 완료 |
 | TECH-001 | Python 3.8 이상에서 실행 | 필수 | 전체 | Python 3.12.13 환경과 사용자 실행 확인 | `docs/worklog.md`, 사용자 실행 로그 | 6 | `Docs: 수동 검증 결과와 문서 동기화` | 실행 검증 완료 |
 | TECH-002 | 외부 라이브러리 없이 표준 라이브러리만 사용 | 필수 | 전체 | import 목록과 의존성 파일 정적 확인 | 코드 리뷰 | 6 | 동일 | 구현 완료 |
 | TECH-003 | MAC에 벡터화 라이브러리 사용 금지, 반복문 직접 구현 | 필수 | `src/mini_npu.py` | 코드 리뷰와 사용자 수동 검증 | 코드 리뷰 | 1 | `Feat: MAC 연산과 판정 로직 구현` | 구현 완료 |
@@ -57,10 +57,10 @@
 | EVID-002 | 잘못된 사용자 입력 재입력 증거 확보 | 권장 | `evidence/` | 실제 입력과 재시도 흐름 기록 | Markdown 로그 | 6 | 동일 | 증거 확보 완료 |
 | EVID-003 | JSON 크기 불일치 케이스 FAIL 증거 확보 | 권장 | 해당 없음 | 사용자 결정으로 생성하지 않음 | 해당 없음 | 6 | 해당 없음 | 제외 (사용자 결정) |
 | EVID-004 | JSON 전체 결과 요약 증거 확보 | 권장 | `evidence/` | 실제 분석 로그 저장 | `evidence/json-analysis.md` | 6 | 동일 | 증거 확보 완료 |
-| EVID-005 | 성능 표 증거 확보 | 권장 | `evidence/` | 실제 측정 로그 저장 | `evidence/performance.md` | 6 | 동일 | 증거 확보 완료 |
+| EVID-005 | 성능 표 증거 확보 | 권장 | `evidence/` | 실제 측정 로그 저장 | `evidence/performance.md`, `evidence/clean-performance-output.md` | 6 | 동일 | 증거 확보 완료 |
 | ENV-001 | 최종 결과를 교육장 macOS zsh에서 재현 | 필수 | 전체 | `python3 main.py` 실행과 메뉴 2 결과 확인 | `evidence/final-run.md` | 6 | `Test: macOS 최종 재현 검증` | 증거 확보 완료 |
-| BONUS-001 | 2차원 배열을 1차원으로 변환한 최적화 비교 | 선택 | `src/mini_npu.py`, `src/performance.py`, `src/report.py` | 네 크기의 1차원 평균 시간 확인 후 기존 2차원 기록과 분석 | `evidence/one-dimensional-performance.md` | 7 | `Feat: 1차원 MAC 최적화 비교 추가` | 증거 확보 완료 |
-| BONUS-002 | N×N Cross/X 패턴 생성 후 모드 1·성능 분석 재사용 | 선택 | `src/pattern_generator.py`, `src/menu.py`, `src/manual_mode.py`, `src/performance.py` | 메뉴 3 생성, 모드 1 저장 필터 사용, 모드 2 추가 크기 표 확인 | `evidence/generated-filter-performance.md` | 필수 완료 후 | `Feat: N×N 필터 생성과 성능 재사용 추가` | 구현 완료 (생성과 3×3 성능 재사용 확인) |
+| BONUS-001 | 2차원 배열을 1차원으로 변환한 최적화 비교 | 선택 | `src/mini_npu.py`, `src/performance.py`, `src/report.py` | 네 크기의 1차원 평균 시간 확인 후 기존 2차원 기록과 분석 | `evidence/one-dimensional-performance.md`, `evidence/clean-performance-output.md` | 7 | `Feat: 1차원 MAC 최적화 비교 추가` | 증거 확보 완료 |
+| BONUS-002 | 3 이상의 홀수 N×N Cross/X 패턴 생성 후 모드 1·성능 분석 재사용 | 선택 | `src/pattern_generator.py`, `src/menu.py`, `src/manual_mode.py`, `src/performance.py` | 메뉴 3 생성, 모드 1 저장 필터 사용, 모드 2 추가 크기 오름차순 표 확인 | `evidence/generated-filter-performance.md`, `evidence/clean-performance-output.md` | 필수 완료 후 | `Feat: N×N 필터 생성과 성능 재사용 추가` | 구현 완료 (생성·교체·성능 재사용·간소화 표 확인) |
 
 ## 별도 실행을 생략한 항목
 
