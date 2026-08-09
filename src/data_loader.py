@@ -48,6 +48,10 @@ def load_data(path: Path = DEFAULT_DATA_PATH) -> Mapping[str, Any]:
         raise DataLoadError(f"{path.name} 파일을 찾을 수 없습니다.") from error
     except PermissionError as error:
         raise DataLoadError(f"{path.name} 파일을 읽을 권한이 없습니다.") from error
+    except UnicodeDecodeError as error:
+        raise DataLoadError(
+            f"{path.name} 파일은 UTF-8 형식이어야 합니다."
+        ) from error
     except json.JSONDecodeError as error:
         raise DataLoadError(
             f"{path.name} JSON 형식이 올바르지 않습니다: "

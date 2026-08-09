@@ -30,7 +30,7 @@
 | FUNC-013 | 전체 테스트/통과/실패 수 출력 | 필수 | `src/report.py` | 케이스 결과 집계와 수기 대조 | `evidence/json-analysis.md` | 4 | 동일 | 증거 확보 완료 |
 | FUNC-014 | 실패 케이스 식별자와 사유 목록 출력 | 필수 | `src/report.py` | 실제 실패 케이스 포함 실행 | `evidence/json-analysis.md` | 4 | 동일 | 증거 확보 완료 |
 | DATA-001 | 저장소 루트의 `data.json` 읽기 | 필수 | `src/data_loader.py` | 정상 파일 로드 | `evidence/json-load.md` | 3 | `Feat: JSON 데이터 로드와 스키마 검증 구현` | 증거 확보 완료 |
-| DATA-002 | JSON 파일 없음·읽기 오류·디코딩 오류 처리 | 필수 | `src/data_loader.py`, `src/menu.py` | 파일 없음과 손상 JSON 확인 | Markdown 오류 처리 로그 | 3 | 동일 | 구현 완료 |
+| DATA-002 | JSON 파일 없음·읽기·UTF-8 디코딩·JSON 문법 오류 처리 | 필수 | `src/data_loader.py`, `src/json_mode.py` | 파일 없음, 비 UTF-8 파일과 손상 JSON 확인 | Markdown 오류 처리 로그 | 3, 6 | `Fix: JSON 파일 인코딩 오류 처리 보완` | 구현 완료 (오류 실행 검증 전) |
 | DATA-003 | `filters.size_5`, `size_13`, `size_25` 해석 | 필수 | `src/data_loader.py` | 각 크기 필터 두 개 로드 | `evidence/json-load.md` | 3 | 동일 | 증거 확보 완료 |
 | DATA-004 | `patterns.size_{N}_{idx}` 키에서 N 추출 | 필수 | `src/data_loader.py` | 5·13·25 키 파싱 수동 확인 | `evidence/json-load.md` | 3 | 동일 | 증거 확보 완료 |
 | DATA-005 | 키의 N에 맞는 `size_N` 필터 선택 | 필수 | `src/data_loader.py` | 각 케이스의 선택 필터 확인 | `evidence/json-load.md` | 3 | 동일 | 증거 확보 완료 |
@@ -65,7 +65,7 @@
 ## 남은 실행 검증
 
 - 필터·패턴 크기 불일치가 케이스 단위 FAIL 처리되고 다음 케이스로 계속되는지 확인
-- `data.json` 파일 없음과 손상 JSON의 모드 오류 처리 확인
+- `data.json` 파일 없음, UTF-8 인코딩 오류와 손상 JSON의 모드 오류 처리 확인
 - `python3 main.py` 기준 최종 macOS 재현
 
 ## 확인된 data.json 구조
