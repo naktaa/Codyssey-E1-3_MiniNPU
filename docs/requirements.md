@@ -9,7 +9,7 @@
 - `증거 확보 완료`: 필요한 로그 또는 스크린샷 저장
 - `문서 반영 완료`: README와 관련 문서까지 실제 결과 반영
 
-필수 기능 구현과 `python3 main.py` 최종 정상 실행을 완료했다. 사용자 입력 오류 재시도, JSON 일괄 판정과 네 크기의 성능 증거를 확보했다. JSON 파일·케이스 오류는 구현을 정적으로 확인했으며 별도 실행 증거는 사용자 결정으로 생성하지 않는다. 유닛 테스트는 작성하거나 실행하지 않는다.
+필수 기능 구현과 `python3 main.py` 최종 정상 실행을 완료했다. 사용자 입력 오류 재시도, JSON 일괄 판정과 네 크기의 성능 증거를 확보했다. 보너스 1과 보너스 2의 미션 원문 범위도 사용자 실행으로 확인했다. JSON 파일·케이스 오류는 구현을 정적으로 확인했으며 별도 실행 증거는 사용자 결정으로 생성하지 않는다. 유닛 테스트는 작성하거나 실행하지 않는다.
 
 ## 추적표
 
@@ -60,7 +60,7 @@
 | EVID-005 | 성능 표 증거 확보 | 권장 | `evidence/` | 실제 측정 로그 저장 | `evidence/performance.md`, `evidence/clean-performance-output.md` | 6 | 동일 | 증거 확보 완료 |
 | ENV-001 | 최종 결과를 교육장 macOS zsh에서 재현 | 필수 | 전체 | `python3 main.py` 실행과 메뉴 2 결과 확인 | `evidence/final-run.md` | 6 | `Test: macOS 최종 재현 검증` | 증거 확보 완료 |
 | BONUS-001 | 2차원 배열을 1차원으로 변환한 최적화 비교 | 선택 | `src/mini_npu.py`, `src/performance.py`, `src/report.py` | 네 크기의 1차원 평균 시간 확인 후 기존 2차원 기록과 분석 | `evidence/one-dimensional-performance.md`, `evidence/clean-performance-output.md` | 7 | `Feat: 1차원 MAC 최적화 비교 추가` | 증거 확보 완료 |
-| BONUS-002 | 3 이상의 홀수 N×N Cross/X 패턴 생성 후 모드 1·성능 분석 재사용 | 선택 | `src/pattern_generator.py`, `src/menu.py`, `src/manual_mode.py`, `src/performance.py` | 메뉴 3 생성, 모드 1 저장 필터 사용, 모드 2 추가 크기 오름차순 표 확인 | `evidence/generated-filter-performance.md`, `evidence/clean-performance-output.md` | 필수 완료 후 | `Feat: N×N 필터 생성과 성능 재사용 추가` | 구현 완료 (생성·교체·성능 재사용·간소화 표 확인) |
+| BONUS-002 | 3 이상의 홀수 N×N Cross/X 패턴 생성 후 모드 1·성능 분석 재사용 | 선택 | `src/pattern_generator.py`, `src/menu.py`, `src/manual_mode.py`, `src/performance.py` | 메뉴 3 생성·교체, 모드 1 자동 생성·저장 필터 사용, 생성 3×3 성능 재사용 확인 | `evidence/generated-filter-performance.md`, `evidence/clean-performance-output.md`, `evidence/manual-nxn-filter-flow.md` | 필수 완료 후 | `Feat: N×N 필터 생성과 성능 재사용 추가` | 증거 확보 완료 (미션 원문 보너스 범위) |
 
 ## 별도 실행을 생략한 항목
 
@@ -68,6 +68,8 @@
 - `data.json` 파일 없음, UTF-8 인코딩 오류와 손상 JSON의 모드 오류 처리
 
 두 항목은 필수 처리 코드가 구현되어 있으나 별도 실행 증거는 사용자 결정으로 생성하지 않는다.
+
+보너스 확장 항목인 짝수·3 미만 크기 재입력과 생성 7×7의 성능 표 삽입 위치는 별도 실행하지 않았다. 필터 생성, 모드 1 자동 생성·저장 필터 선택과 생성 필터의 성능 분석 재사용은 실제 실행으로 확인했다.
 
 ## 확인된 data.json 구조
 
