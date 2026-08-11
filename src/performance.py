@@ -1,5 +1,6 @@
 """3x3·5x5·13x13·25x25 MAC 성능 측정."""
 
+import statistics
 import time
 from dataclasses import dataclass
 from typing import List, Mapping, Sequence, Tuple
@@ -7,14 +8,15 @@ from typing import List, Mapping, Sequence, Tuple
 from src.data_loader import Matrix, PatternCase
 from src.mini_npu import (
     LABEL_CROSS,
+    MIN_TIMING_REPETITIONS,
     calculate_mac_1d,
     flatten_matrix,
-    measure_average_mac_time_ms,
+    measure_mac_time_stats_ms,
 )
 from src.pattern_generator import MatrixStore
 
 
-PERFORMANCE_REPETITIONS = 1_000
+PERFORMANCE_REPETITIONS = 10
 REQUIRED_SIZES = (3, 5, 13, 25)
 BASELINE_3X3: Matrix = (
     (0.0, 1.0, 0.0),
@@ -29,6 +31,7 @@ class PerformanceResult:
 
     size: int
     average_time_ms: float
+    standard_deviation_ms: float
     operation_count: int
     repetitions: int
 
@@ -50,7 +53,7 @@ def measure_size_performance(
             pattern_cases,
             matrix_store,
         )
-        average_time_ms = measure_average_mac_time_ms(
+        average_time_ms, standard_deviation_ms = measure_mac_time_stats_ms(
             pattern,
             filter_cross,
             repetitions,
@@ -59,6 +62,7 @@ def measure_size_performance(
             PerformanceResult(
                 size=size,
                 average_time_ms=average_time_ms,
+                standard_deviation_ms=standard_deviation_ms,
                 operation_count=size * size,
                 repetitions=repetitions,
             )
@@ -74,6 +78,13 @@ def measure_1d_performance(
 ) -> List[PerformanceResult]:
     """필수 크기와 실행 중 생성 크기의 1차원 MAC 평균 시간을 측정한다."""
 
+    if isinstance(repetitions, bool) or not isinstance(repetitions, int):
+        raise ValueError("repetitions must be an integer.")
+    if repetitions < MIN_TIMING_REPETITIONS:
+        raise ValueError(
+            f"repetitions must be at least {MIN_TIMING_REPETITIONS}."
+        )
+
     results = []
 
     sizes = sorted(set(REQUIRED_SIZES) | set(matrix_store))
@@ -87,16 +98,21 @@ def measure_1d_performance(
         flat_pattern = flatten_matrix(pattern)
         flat_filter = flatten_matrix(filter_cross)
 
-        started_ns = time.perf_counter_ns()
+        measured_times_ms = []
         for _ in range(repetitions):
+            started_ns = time.perf_counter_ns()
             calculate_mac_1d(flat_pattern, flat_filter)
-        elapsed_ns = time.perf_counter_ns() - started_ns
-        average_time_ms = elapsed_ns / repetitions / 1_000_000.0
+            elapsed_ns = time.perf_counter_ns() - started_ns
+            measured_times_ms.append(elapsed_ns / 1_000_000.0)
+
+        average_time_ms = statistics.fmean(measured_times_ms)
+        standard_deviation_ms = statistics.pstdev(measured_times_ms)
 
         results.append(
             PerformanceResult(
                 size=size,
                 average_time_ms=average_time_ms,
+                standard_deviation_ms=standard_deviation_ms,
                 operation_count=size * size,
                 repetitions=repetitions,
             )

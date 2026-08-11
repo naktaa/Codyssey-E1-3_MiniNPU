@@ -109,8 +109,6 @@ def run_json_mode(matrix_store: MatrixStore) -> None:
         results.append(result)
         print_case_result(result)
 
-    print_summary(results, DEFAULT_EPSILON)
-
     try:
         performance_results = measure_size_performance(
             performance_cases,
@@ -118,6 +116,7 @@ def run_json_mode(matrix_store: MatrixStore) -> None:
         )
     except ValueError as error:
         print(f"\n성능 분석 실패: {error}")
+        print_summary(results, DEFAULT_EPSILON)
         return
 
     print_performance_report(performance_results)
@@ -128,7 +127,9 @@ def run_json_mode(matrix_store: MatrixStore) -> None:
             matrix_store,
         )
     except ValueError as error:
-        print(f"\n보너스 성능 분석 실패: {error}")
+        print(f"\n1차원 성능 분석 실패: {error}")
+        print_summary(results, DEFAULT_EPSILON)
         return
 
     print_1d_performance_report(one_d_results)
+    print_summary(results, DEFAULT_EPSILON)

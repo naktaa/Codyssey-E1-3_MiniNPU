@@ -15,13 +15,13 @@ from src.mini_npu import (
     LABEL_X,
     calculate_mac,
     classify_scores,
-    measure_average_mac_time_ms,
+    measure_mac_time_stats_ms,
 )
 from src.pattern_generator import MatrixStore, generate_filter_pair, read_matrix_size
 
 
 MATRIX_SIZE = 3
-TIMING_REPETITIONS = 1_000
+TIMING_REPETITIONS = 10
 
 
 def run_manual_mode(matrix_store: MatrixStore) -> None:
@@ -113,7 +113,7 @@ def _print_mac_result(
     score_cross = calculate_mac(pattern, filter_cross)
     score_x = calculate_mac(pattern, filter_x)
     result = classify_scores(score_cross, score_x)
-    average_time_ms = measure_average_mac_time_ms(
+    average_time_ms, standard_deviation_ms = measure_mac_time_stats_ms(
         pattern,
         filter_cross,
         TIMING_REPETITIONS,
@@ -129,6 +129,7 @@ def _print_mac_result(
 
     print(f"\n[{size}x{size} MAC 성능]")
     print(f"평균 시간: {average_time_ms:.6f} ms")
+    print(f"표준편차: {standard_deviation_ms:.6f} ms")
     print("측정 대상: 패턴과 Cross 필터의 calculate_mac() 1회")
     print(f"반복 횟수: {TIMING_REPETITIONS}회")
 

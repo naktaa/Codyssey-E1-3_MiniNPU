@@ -67,31 +67,33 @@ def print_performance_report(results: Sequence[PerformanceResult]) -> None:
     """크기별 2차원 MAC 성능을 정렬된 표로 출력한다."""
 
     print("\n[크기별 MAC 성능]")
-    print("Size(NxN) | Avg Time(ms) | N^2 Ops | Repetitions")
-    print("-" * 53)
+    print("크기(NxN) | 평균 시간(ms) | 표준편차(ms) | N² 연산 수 | 반복 횟수")
+    print("-" * 67)
 
     for result in results:
         size_text = f"{result.size}x{result.size}"
         print(
             f"{size_text:<9} | "
             f"{result.average_time_ms:>12.6f} | "
+            f"{result.standard_deviation_ms:>11.6f} | "
             f"{result.operation_count:>7} | "
             f"{result.repetitions:>11}"
         )
 
 
 def print_1d_performance_report(results: Sequence[PerformanceResult]) -> None:
-    """보너스 1차원 MAC의 크기별 성능 표를 출력한다."""
+    """1차원 MAC의 크기별 성능 표를 출력한다."""
 
-    print("\n[보너스: 1차원 MAC 성능]")
-    print("Size(NxN) | Avg Time(ms) | N^2 Ops | Repetitions")
-    print("-" * 53)
+    print("\n[1차원 MAC 성능]")
+    print("크기(NxN) | 평균 시간(ms) | 표준편차(ms) | N² 연산 수 | 반복 횟수")
+    print("-" * 67)
 
     for result in results:
         size_text = f"{result.size}x{result.size}"
         print(
             f"{size_text:<9} | "
             f"{result.average_time_ms:>12.6f} | "
+            f"{result.standard_deviation_ms:>11.6f} | "
             f"{result.operation_count:>7} | "
             f"{result.repetitions:>11}"
         )

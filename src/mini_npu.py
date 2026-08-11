@@ -1,9 +1,10 @@
 """Mini NPU의 핵심 MAC 연산, 점수 판정과 성능 측정 로직."""
 
 import math
+import statistics
 import time
 from numbers import Real
-from typing import List, Sequence
+from typing import List, Sequence, Tuple
 
 
 DEFAULT_EPSILON = 1e-9
@@ -129,15 +130,15 @@ def classify_scores(
     return LABEL_X
 
 
-def measure_average_mac_time_ms(
+def measure_mac_time_stats_ms(
     pattern: Sequence[Sequence[Real]],
     filter_matrix: Sequence[Sequence[Real]],
     repetitions: int,
-) -> float:
-    """calculate_mac 한 번의 평균 실행 시간을 밀리초 단위로 반환한다.
+) -> Tuple[float, float]:
+    """독립 측정한 MAC 시간의 평균과 표준편차를 밀리초로 반환한다.
 
-    파일 읽기와 콘솔 출력은 측정하지 않는다. 반복문 전체를
-    perf_counter_ns로 한 번 측정해 타이머 호출 오버헤드를 줄인다.
+    파일 읽기와 콘솔 출력은 측정하지 않는다. 각 calculate_mac 호출을
+    perf_counter_ns로 따로 측정하고 모집단 표준편차를 계산한다.
     """
 
     if isinstance(repetitions, bool) or not isinstance(repetitions, int):
@@ -156,12 +157,17 @@ def measure_average_mac_time_ms(
             f"got {pattern_size}x{pattern_size} and {filter_size}x{filter_size}."
         )
 
-    started_ns = time.perf_counter_ns()
+    measured_times_ms = []
     for _ in range(repetitions):
+        started_ns = time.perf_counter_ns()
         calculate_mac(pattern, filter_matrix)
-    elapsed_ns = time.perf_counter_ns() - started_ns
+        elapsed_ns = time.perf_counter_ns() - started_ns
+        measured_times_ms.append(elapsed_ns / 1_000_000.0)
 
-    return elapsed_ns / repetitions / 1_000_000.0
+    return (
+        statistics.fmean(measured_times_ms),
+        statistics.pstdev(measured_times_ms),
+    )
 
 
 def _validated_number(value: Real, name: str) -> float:
