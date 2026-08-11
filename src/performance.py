@@ -98,6 +98,12 @@ def measure_1d_performance(
         flat_pattern = flatten_matrix(pattern)
         flat_filter = flatten_matrix(filter_cross)
 
+        if len(flat_pattern) != len(flat_filter):
+            raise ValueError(
+                "pattern and filter lengths must match: "
+                f"got {len(flat_pattern)} and {len(flat_filter)}."
+            )
+
         measured_times_ms = []
         for _ in range(repetitions):
             started_ns = time.perf_counter_ns()

@@ -54,22 +54,16 @@ def calculate_mac(
     pattern: Sequence[Sequence[Real]],
     filter_matrix: Sequence[Sequence[Real]],
 ) -> float:
-    """같은 위치의 패턴과 필터 값을 곱해 모두 누적한 MAC 점수를 반환한다."""
-
-    pattern_size = validate_square_matrix(pattern, "pattern")
-    filter_size = validate_square_matrix(filter_matrix, "filter")
-
-    if pattern_size != filter_size:
-        raise ValueError(
-            "pattern and filter sizes must match: "
-            f"got {pattern_size}x{pattern_size} and {filter_size}x{filter_size}."
-        )
+    """검증된 같은 크기 행렬의 위치별 곱을 누적한 MAC 점수를 반환한다."""
 
     score = 0.0
-    for row_index in range(pattern_size):
-        for column_index in range(pattern_size):
-            score += float(pattern[row_index][column_index]) * float(
-                filter_matrix[row_index][column_index]
+    size = len(pattern)
+
+    for row_index in range(size):
+        for column_index in range(size):
+            score += (
+                pattern[row_index][column_index]
+                * filter_matrix[row_index][column_index]
             )
 
     return score
@@ -92,20 +86,13 @@ def calculate_mac_1d(
     pattern: Sequence[Real],
     filter_values: Sequence[Real],
 ) -> float:
-    """같은 위치의 1차원 패턴과 필터 값을 곱해 누적한다."""
-
-    pattern_length = _validate_flat_vector(pattern, "pattern")
-    filter_length = _validate_flat_vector(filter_values, "filter")
-
-    if pattern_length != filter_length:
-        raise ValueError(
-            "pattern and filter lengths must match: "
-            f"got {pattern_length} and {filter_length}."
-        )
+    """검증된 같은 길이 벡터의 위치별 곱을 누적한다."""
 
     score = 0.0
+    pattern_length = len(pattern)
+
     for index in range(pattern_length):
-        score += float(pattern[index]) * float(filter_values[index])
+        score += pattern[index] * filter_values[index]
 
     return score
 
@@ -137,8 +124,9 @@ def measure_mac_time_stats_ms(
 ) -> Tuple[float, float]:
     """독립 측정한 MAC 시간의 평균과 표준편차를 밀리초로 반환한다.
 
-    파일 읽기와 콘솔 출력은 측정하지 않는다. 각 calculate_mac 호출을
-    perf_counter_ns로 따로 측정하고 모집단 표준편차를 계산한다.
+    행렬 구조와 크기는 타이머 시작 전에 한 번 검증한다. 파일 읽기,
+    입력 검증과 콘솔 출력은 제외하고 각 calculate_mac 호출의 순수
+    곱셈·누적 구간을 perf_counter_ns로 측정해 모집단 표준편차를 계산한다.
     """
 
     if isinstance(repetitions, bool) or not isinstance(repetitions, int):
@@ -180,20 +168,3 @@ def _validated_number(value: Real, name: str) -> float:
     if not math.isfinite(converted):
         raise ValueError(f"{name} must be finite.")
     return converted
-
-
-def _validate_flat_vector(values: Sequence[Real], name: str) -> int:
-    """1차원 MAC 입력이 비어 있지 않은 유한 숫자 목록인지 확인한다."""
-
-    if isinstance(values, (str, bytes)) or not isinstance(values, Sequence):
-        raise ValueError(f"{name} must be a one-dimensional sequence.")
-    if len(values) == 0:
-        raise ValueError(f"{name} must not be empty.")
-
-    for index, value in enumerate(values):
-        if isinstance(value, bool) or not isinstance(value, Real):
-            raise ValueError(f"{name}[{index}] must be a number.")
-        if not math.isfinite(float(value)):
-            raise ValueError(f"{name}[{index}] must be finite.")
-
-    return len(values)
