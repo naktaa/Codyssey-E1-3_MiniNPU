@@ -13,6 +13,7 @@ from src.mini_npu import (
     LABEL_CROSS,
     LABEL_UNDECIDED,
     LABEL_X,
+    WARMUP_REPETITIONS,
     calculate_mac,
     classify_scores,
     measure_mac_time_stats_ms,
@@ -130,6 +131,7 @@ def _print_mac_result(
     print(f"\n[{size}x{size} MAC 성능]")
     print(f"평균 시간: {average_time_ms:.6f} ms")
     print(f"표준편차: {standard_deviation_ms:.6f} ms")
+    print(f"워밍업: {WARMUP_REPETITIONS}회 (측정 제외)")
     print("측정 대상: 패턴과 Cross 필터의 calculate_mac() 1회")
     print(f"반복 횟수: {TIMING_REPETITIONS}회")
 

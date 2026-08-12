@@ -9,6 +9,7 @@ from typing import List, Sequence, Tuple
 
 DEFAULT_EPSILON = 1e-9
 MIN_TIMING_REPETITIONS = 10
+WARMUP_REPETITIONS = 10
 LABEL_CROSS = "Cross"
 LABEL_X = "X"
 LABEL_UNDECIDED = "UNDECIDED"
@@ -124,9 +125,10 @@ def measure_mac_time_stats_ms(
 ) -> Tuple[float, float]:
     """독립 측정한 MAC 시간의 평균과 표준편차를 밀리초로 반환한다.
 
-    행렬 구조와 크기는 타이머 시작 전에 한 번 검증한다. 파일 읽기,
-    입력 검증과 콘솔 출력은 제외하고 각 calculate_mac 호출의 순수
-    곱셈·누적 구간을 perf_counter_ns로 측정해 모집단 표준편차를 계산한다.
+    행렬 구조와 크기는 타이머 시작 전에 한 번 검증한다. 같은 입력으로
+    고정 횟수만큼 워밍업한 뒤, 파일 읽기·입력 검증·콘솔 출력과 워밍업을
+    제외하고 각 calculate_mac 호출의 순수 곱셈·누적 구간을
+    perf_counter_ns로 측정해 모집단 표준편차를 계산한다.
     """
 
     if isinstance(repetitions, bool) or not isinstance(repetitions, int):
@@ -145,10 +147,48 @@ def measure_mac_time_stats_ms(
             f"got {pattern_size}x{pattern_size} and {filter_size}x{filter_size}."
         )
 
+    for _ in range(WARMUP_REPETITIONS):
+        calculate_mac(pattern, filter_matrix)
+
     measured_times_ms = []
     for _ in range(repetitions):
         started_ns = time.perf_counter_ns()
         calculate_mac(pattern, filter_matrix)
+        elapsed_ns = time.perf_counter_ns() - started_ns
+        measured_times_ms.append(elapsed_ns / 1_000_000.0)
+
+    return (
+        statistics.fmean(measured_times_ms),
+        statistics.pstdev(measured_times_ms),
+    )
+
+
+def measure_mac_1d_time_stats_ms(
+    pattern: Sequence[Real],
+    filter_values: Sequence[Real],
+    repetitions: int,
+) -> Tuple[float, float]:
+    """워밍업 후 1차원 MAC 호출을 독립 측정해 통계를 반환한다."""
+
+    if isinstance(repetitions, bool) or not isinstance(repetitions, int):
+        raise ValueError("repetitions must be an integer.")
+    if repetitions < MIN_TIMING_REPETITIONS:
+        raise ValueError(
+            f"repetitions must be at least {MIN_TIMING_REPETITIONS}."
+        )
+    if len(pattern) != len(filter_values):
+        raise ValueError(
+            "pattern and filter lengths must match: "
+            f"got {len(pattern)} and {len(filter_values)}."
+        )
+
+    for _ in range(WARMUP_REPETITIONS):
+        calculate_mac_1d(pattern, filter_values)
+
+    measured_times_ms = []
+    for _ in range(repetitions):
+        started_ns = time.perf_counter_ns()
+        calculate_mac_1d(pattern, filter_values)
         elapsed_ns = time.perf_counter_ns() - started_ns
         measured_times_ms.append(elapsed_ns / 1_000_000.0)
 

@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 from typing import List, Optional, Sequence
 
+from src.mini_npu import WARMUP_REPETITIONS
 from src.performance import PerformanceResult
 
 
@@ -66,27 +67,39 @@ def print_summary(results: Sequence[CaseResult], epsilon: float) -> None:
 def print_performance_report(results: Sequence[PerformanceResult]) -> None:
     """크기별 2차원 MAC 성능을 정렬된 표로 출력한다."""
 
-    print("\n[크기별 MAC 성능]")
-    print("크기(NxN) | 평균 시간(ms) | 표준편차(ms) | N² 연산 수 | 반복 횟수")
-    print("-" * 67)
-
-    for result in results:
-        size_text = f"{result.size}x{result.size}"
-        print(
-            f"{size_text:<9} | "
-            f"{result.average_time_ms:>12.6f} | "
-            f"{result.standard_deviation_ms:>11.6f} | "
-            f"{result.operation_count:>7} | "
-            f"{result.repetitions:>11}"
-        )
+    print_performance_table(
+        results,
+        "크기별 MAC 성능",
+        f"워밍업 {WARMUP_REPETITIONS}회(측정 제외) 후 "
+        "단일 MAC 호출을 독립 측정",
+    )
 
 
 def print_1d_performance_report(results: Sequence[PerformanceResult]) -> None:
     """1차원 MAC의 크기별 성능 표를 출력한다."""
 
-    print("\n[1차원 MAC 성능]")
-    print("크기(NxN) | 평균 시간(ms) | 표준편차(ms) | N² 연산 수 | 반복 횟수")
-    print("-" * 67)
+    print_performance_table(
+        results,
+        "1차원 MAC 성능",
+        f"워밍업 {WARMUP_REPETITIONS}회(측정 제외) 후 "
+        "단일 MAC 호출을 독립 측정",
+    )
+
+
+def print_performance_table(
+    results: Sequence[PerformanceResult],
+    title: str,
+    measurement_description: str,
+) -> None:
+    """공식·비공식 성능 결과를 같은 열 구성으로 출력한다."""
+
+    print(f"\n[{title}]")
+    print(f"측정 방식: {measurement_description}")
+    print(
+        "크기(NxN) | 평균 시간(ms) | 표준편차(ms) | "
+        "CV(%) | N² 연산 수 | 반복 횟수"
+    )
+    print("-" * 77)
 
     for result in results:
         size_text = f"{result.size}x{result.size}"
@@ -94,6 +107,7 @@ def print_1d_performance_report(results: Sequence[PerformanceResult]) -> None:
             f"{size_text:<9} | "
             f"{result.average_time_ms:>12.6f} | "
             f"{result.standard_deviation_ms:>11.6f} | "
+            f"{result.coefficient_of_variation:>5.2f} | "
             f"{result.operation_count:>7} | "
             f"{result.repetitions:>11}"
         )

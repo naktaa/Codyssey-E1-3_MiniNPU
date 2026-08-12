@@ -1,16 +1,12 @@
 """3x3·5x5·13x13·25x25 MAC 성능 측정."""
-
-import statistics
-import time
 from dataclasses import dataclass
 from typing import List, Mapping, Sequence, Tuple
 
 from src.data_loader import Matrix, PatternCase
 from src.mini_npu import (
     LABEL_CROSS,
-    MIN_TIMING_REPETITIONS,
-    calculate_mac_1d,
     flatten_matrix,
+    measure_mac_1d_time_stats_ms,
     measure_mac_time_stats_ms,
 )
 from src.pattern_generator import MatrixStore
@@ -35,6 +31,14 @@ class PerformanceResult:
     operation_count: int
     repetitions: int
 
+    @property
+    def coefficient_of_variation(self) -> float:
+        """평균 대비 표준편차 비율을 백분율로 반환한다."""
+
+        if self.average_time_ms == 0.0:
+            return 0.0
+        return self.standard_deviation_ms / self.average_time_ms * 100.0
+
 
 def measure_size_performance(
     pattern_cases: Mapping[int, PatternCase],
@@ -48,7 +52,7 @@ def measure_size_performance(
     sizes = sorted(set(REQUIRED_SIZES) | set(matrix_store))
 
     for size in sizes:
-        pattern, filter_cross = _measurement_input(
+        pattern, filter_cross = get_measurement_input(
             size,
             pattern_cases,
             matrix_store,
@@ -78,19 +82,12 @@ def measure_1d_performance(
 ) -> List[PerformanceResult]:
     """필수 크기와 실행 중 생성 크기의 1차원 MAC 평균 시간을 측정한다."""
 
-    if isinstance(repetitions, bool) or not isinstance(repetitions, int):
-        raise ValueError("repetitions must be an integer.")
-    if repetitions < MIN_TIMING_REPETITIONS:
-        raise ValueError(
-            f"repetitions must be at least {MIN_TIMING_REPETITIONS}."
-        )
-
     results = []
 
     sizes = sorted(set(REQUIRED_SIZES) | set(matrix_store))
 
     for size in sizes:
-        pattern, filter_cross = _measurement_input(
+        pattern, filter_cross = get_measurement_input(
             size,
             pattern_cases,
             matrix_store,
@@ -98,21 +95,11 @@ def measure_1d_performance(
         flat_pattern = flatten_matrix(pattern)
         flat_filter = flatten_matrix(filter_cross)
 
-        if len(flat_pattern) != len(flat_filter):
-            raise ValueError(
-                "pattern and filter lengths must match: "
-                f"got {len(flat_pattern)} and {len(flat_filter)}."
-            )
-
-        measured_times_ms = []
-        for _ in range(repetitions):
-            started_ns = time.perf_counter_ns()
-            calculate_mac_1d(flat_pattern, flat_filter)
-            elapsed_ns = time.perf_counter_ns() - started_ns
-            measured_times_ms.append(elapsed_ns / 1_000_000.0)
-
-        average_time_ms = statistics.fmean(measured_times_ms)
-        standard_deviation_ms = statistics.pstdev(measured_times_ms)
+        average_time_ms, standard_deviation_ms = measure_mac_1d_time_stats_ms(
+            flat_pattern,
+            flat_filter,
+            repetitions,
+        )
 
         results.append(
             PerformanceResult(
@@ -127,7 +114,7 @@ def measure_1d_performance(
     return results
 
 
-def _measurement_input(
+def get_measurement_input(
     size: int,
     pattern_cases: Mapping[int, PatternCase],
     matrix_store: MatrixStore,
