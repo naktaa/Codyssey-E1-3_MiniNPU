@@ -33,14 +33,18 @@ def run_json_mode(generated_store: GeneratedStore) -> None:
     try:
         document = load_data()
         filter_sizes = get_filter_sizes(document)
-        json_filters = {
-            size: get_filter_pair(document, size)
-            for size in filter_sizes
-        }
         raw_cases = get_raw_pattern_cases(document)
     except (DataLoadError, DataValidationError) as error:
         print(f"분석 실패: {error}")
         return
+
+    json_filters = {}
+    filter_errors = []
+    for size in filter_sizes:
+        try:
+            json_filters[size] = get_filter_pair(document, size)
+        except DataValidationError as error:
+            filter_errors.append(str(error))
 
     print(f"필터 크기: {', '.join(str(size) for size in filter_sizes)}")
     print(f"분석 대상 패턴: {len(raw_cases)}")
@@ -105,6 +109,11 @@ def run_json_mode(generated_store: GeneratedStore) -> None:
         print_case_result(result)
 
     print_summary(results, DEFAULT_EPSILON)
+
+    if filter_errors:
+        print("\n[성능 분석 제외 필터]")
+        for reason in filter_errors:
+            print(f"- {reason}")
 
     performance_filters = get_performance_filter_pairs(
         json_filters,

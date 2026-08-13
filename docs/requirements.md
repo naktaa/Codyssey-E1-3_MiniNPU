@@ -35,7 +35,7 @@
 | DATA-004 | `patterns.size_{N}_{idx}` 키에서 N 추출 | 필수 | `src/data_loader.py` | 5·13·25 키 파싱 수동 확인 | `evidence/json-load.md` | 3 | 동일 | 증거 확보 완료 |
 | DATA-005 | 키의 N에 맞는 `size_N` 필터 선택 | 필수 | `src/data_loader.py` | 각 케이스의 선택 필터 확인 | `evidence/json-load.md` | 3 | 동일 | 증거 확보 완료 |
 | DATA-006 | 필터와 패턴 크기 일치 검증 | 필수 | `src/data_loader.py` | 행렬·키 크기 검증 코드 확인 | 별도 실행 증거 생략 | 3, 4 | 동일 | 구현 완료 (사용자 결정으로 실행 생략) |
-| DATA-007 | 크기/스키마 불일치를 케이스 단위 FAIL 처리하고 계속 실행 | 필수 | `src/data_loader.py`, `src/json_mode.py`, `src/report.py` | 케이스 오류의 FAIL 변환과 `continue` 확인 | 별도 실행 증거 생략 | 4 | `Feat: JSON 일괄 판정과 결과 요약 구현` | 구현 완료 (사용자 결정으로 실행 생략) |
+| DATA-007 | 크기/스키마 불일치를 케이스 단위 FAIL 처리하고 계속 실행 | 필수 | `src/data_loader.py`, `src/json_mode.py`, `src/report.py` | 잘못된 필터를 사용하는 케이스가 FAIL 처리된 뒤 이후 크기까지 계속되는지 확인 | 새 오류 실행 로그 | 4 | `Fix: JSON 필터 오류를 케이스 단위로 처리` | 구현 완료 (실행 검증 전) |
 | DATA-008 | expected `+`를 `Cross`, `x`를 `X`로 정규화 | 필수 | `src/data_loader.py` | 라벨 변환 수동 확인 | `evidence/json-load.md` | 3 | `Feat: JSON 데이터 로드와 스키마 검증 구현` | 증거 확보 완료 |
 | DATA-009 | filter key `cross`를 `Cross`, `x`를 `X`로 정규화 | 필수 | `src/data_loader.py` | 라벨 변환 수동 확인 | `evidence/json-load.md` | 3 | 동일 | 증거 확보 완료 |
 | DATA-010 | 내부 비교와 출력에 표준 라벨 Cross/X 사용 | 필수 | 전체 | 원본 라벨이 결과 비교에 남지 않는지 확인 | `evidence/json-analysis.md` | 3, 4 | 동일 | 증거 확보 완료 |
@@ -55,7 +55,7 @@
 | DOC-004 | README 실패 원인과 O(N²) 분석 작성 | 필수 | `README.md` | 새 측정값·실패 로그와 대조 | README | 6 | 동일 | 문서 반영 완료 |
 | EVID-001 | 사용자 모드 정상 실행 결과 확보 | 권장 | `evidence/` | 실제 실행 로그 저장 | `evidence/simplified-final-run.md` | 6 | `Test: 필수 시나리오 검증` | 증거 확보 완료 |
 | EVID-002 | 잘못된 사용자 입력 재입력 증거 확보 | 권장 | `evidence/` | 실제 입력과 재시도 흐름 기록 | Markdown 로그 | 6 | 동일 | 증거 확보 완료 |
-| EVID-003 | JSON 크기 불일치 케이스 FAIL 증거 확보 | 권장 | 해당 없음 | 사용자 결정으로 생성하지 않음 | 해당 없음 | 6 | 해당 없음 | 제외 (사용자 결정) |
+| EVID-003 | JSON 크기 불일치 케이스 FAIL 증거 확보 | 권장 | `evidence/` | 잘못된 필터를 사용하는 케이스의 FAIL 사유와 이후 케이스 계속 처리 확인 | 새 오류 실행 로그 | 6 | `Test: JSON 오류 케이스 계속 처리 검증` | 수집 대기 |
 | EVID-004 | JSON 전체 결과 요약 증거 확보 | 권장 | `evidence/` | 실제 분석 로그 저장 | `evidence/simplified-final-run.md` | 6 | 동일 | 증거 확보 완료 |
 | EVID-005 | 성능 표 증거 확보 | 권장 | `evidence/` | 네 필수 크기의 순수 MAC 성능표 저장 | `evidence/simplified-final-run.md` | 6 | 동일 | 증거 확보 완료 |
 | ENV-001 | 최종 결과를 macOS zsh에서 재현하고 환경 기록 | 필수 | 전체 | 단순화 후 메뉴 1·2 실행과 운영체제·CPU 확인 | `evidence/mac-status.png`, 새 최종 로그 | 6 | `Test: macOS 최종 재현 검증` | 환경 증거 확보 / 최신 코드 재검증 전 |
@@ -65,10 +65,9 @@
 
 ## 별도 실행을 생략한 항목
 
-- 필터·패턴 크기 불일치 케이스 단위 FAIL과 다음 케이스 계속 처리
 - `data.json` 파일 없음, UTF-8 인코딩 오류와 손상 JSON의 모드 오류 처리
 
-두 항목은 필수 처리 코드가 구현되어 있으나 별도 실행 증거는 사용자 결정으로 생성하지 않는다.
+파일 단위 오류 처리는 구현되어 있으나 별도 실행 증거는 사용자 결정으로 생성하지 않는다. 필터·패턴 크기 불일치의 케이스 단위 처리는 최신 코드의 사용자 실행 검증을 기다린다.
 
 보너스 확장 항목인 짝수·3 미만 크기 재입력은 별도 실행하지 않았다. 필터 생성과 모드 1 자동 생성·저장 필터 선택은 이전 구조에서 실제 실행으로 확인했고, 새 7×7 생성 필터의 모드 2 재사용은 최신 구조에서 확인했다. JSON과 같은 생성 크기의 중복 제거는 재검증해야 한다.
 
