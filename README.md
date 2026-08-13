@@ -203,6 +203,7 @@ NPU는 같은 형태의 MAC을 대량으로 병렬 처리하는 데 특화된 �
 ## 관련 문서
 
 - [동료평가 학습 가이드](docs/peer-review-guide.md)
+- [구현 단순화 검토안](docs/simplification-review.md)
 - [미션 원문](docs/mission-original.md)
 - [미션 요약](MISSION.md)
 - [요구사항 추적표](docs/requirements.md)
