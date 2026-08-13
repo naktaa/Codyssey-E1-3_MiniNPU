@@ -104,6 +104,8 @@ def run_json_mode(generated_store: GeneratedStore) -> None:
         results.append(result)
         print_case_result(result)
 
+    print_summary(results, DEFAULT_EPSILON)
+
     performance_filters = get_performance_filter_pairs(
         json_filters,
         generated_store,
@@ -113,17 +115,13 @@ def run_json_mode(generated_store: GeneratedStore) -> None:
         performance_results = measure_size_performance(performance_filters)
     except ValueError as error:
         print(f"\n성능 분석 실패: {error}")
-        print_summary(results, DEFAULT_EPSILON)
         return
 
     try:
         one_d_results = measure_1d_performance(performance_filters)
     except ValueError as error:
         print(f"\n1차원 성능 분석 실패: {error}")
-        print_summary(results, DEFAULT_EPSILON)
         return
 
     print_performance_report(performance_results)
     print_1d_performance_report(one_d_results)
-
-    print_summary(results, DEFAULT_EPSILON)

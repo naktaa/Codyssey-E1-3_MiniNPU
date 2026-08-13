@@ -10,7 +10,7 @@ from src.mini_npu import (
     calculate_mac,
     classify_scores,
 )
-from src.performance import measure_size_performance
+from src.performance import PERFORMANCE_REPETITIONS, measure_size_performance
 from src.pattern_generator import (
     GeneratedStore,
     generate_filter_pair,
@@ -20,7 +20,6 @@ from src.report import print_performance_table
 
 
 MATRIX_SIZE = 3
-TIMING_REPETITIONS = 10
 
 
 def run_manual_mode(generated_store: GeneratedStore) -> None:
@@ -103,7 +102,7 @@ def _print_mac_result(
                 LABEL_X: filter_x,
             }
         },
-        TIMING_REPETITIONS,
+        PERFORMANCE_REPETITIONS,
     )
     print_performance_table(performance_results, "MAC 성능")
 

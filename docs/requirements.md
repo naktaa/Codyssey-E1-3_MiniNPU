@@ -9,7 +9,7 @@
 - `증거 확보 완료`: 필요한 로그 또는 스크린샷 저장
 - `문서 반영 완료`: README와 관련 문서까지 실제 결과 반영
 
-필수 기능과 두 보너스의 구현을 완료했다. 성능 분석은 3×3 코드 내부 필터, JSON 필터와 생성 필터의 Cross/X 쌍을 재사용한다. JSON 크기를 우선하고 없는 생성 크기만 추가해 크기당 한 번 측정한다. 최신 필터 기반 성능표는 사용자 재검증 전이다.
+필수 기능과 두 보너스의 구현을 완료했다. 사용자가 모드 1 직접 입력과 모드 2 JSON 판정, 기존 필터 기반 2차원·1차원 MAC 10회 성능을 최신 코드로 확인했다. 개별·묶음 10·100·1,000회 추가 실험과 새 7×7 생성 크기의 성능 분석 재사용도 확인했다. JSON과 같은 생성 크기의 중복 제거는 최종 재검증 전이다.
 
 ## 추적표
 
@@ -23,7 +23,7 @@
 | FUNC-006 | 3×3 패턴을 같은 방식으로 입력 | 필수 | `src/manual_mode.py` | 패턴 3줄 저장 확인 | `evidence/manual-mode-success.md` | 2 | 동일 | 실행 검증 완료 |
 | FUNC-007 | 행/열 불일치와 숫자 파싱 오류 시 안내 후 재입력 | 필수 | `src/manual_mode.py` | 잘못된 열 개수, 문자 입력 후 정상 재입력 | `evidence/invalid-input.md` | 2 | 동일 | 증거 확보 완료 |
 | FUNC-008 | 사용자 모드 A/B 점수와 판정 출력 | 필수 | `src/manual_mode.py`, `src/mini_npu.py` | X 패턴 입력 시 B 판정 | `evidence/manual-mode-success.md` | 2 | 동일 | 증거 확보 완료 |
-| FUNC-009 | 사용자 모드 3×3 평균 MAC 시간 출력 | 필수 | `src/mini_npu.py`, `src/manual_mode.py`, `src/report.py` | 워밍업 후 순수 MAC 10회 독립 측정 결과가 공통 `MAC 성능` 표로 출력되는지 확인 | 기존 `evidence/manual-mode-success.md` 참고, 새 실행 필요 | 2 | `Feat: 3x3 사용자 입력 모드 구현` | 구현 완료 (공통 표 적용 후 실행 검증 전) |
+| FUNC-009 | 사용자 모드 3×3 평균 MAC 시간 출력 | 필수 | `src/mini_npu.py`, `src/manual_mode.py`, `src/report.py` | 워밍업 후 순수 MAC 10회 독립 측정 결과가 공통 `MAC 성능` 표로 출력되는지 확인 | `evidence/simplified-final-run.md` | 2 | `Feat: 3x3 사용자 입력 모드 구현` | 증거 확보 완료 |
 | FUNC-010 | epsilon 기반 점수 비교 | 필수 | `src/mini_npu.py` | 실제 동점 케이스와 epsilon 출력 확인 | `evidence/json-analysis.md` | 1 | `Feat: MAC 연산과 판정 로직 구현` | 증거 확보 완료 |
 | FUNC-011 | 동점 시 사용자 모드 판정 불가, JSON 모드 UNDECIDED | 필수 | `src/mini_npu.py`, `src/report.py` | 실제 동점 케이스로 확인 | `evidence/json-analysis.md` | 1, 4 | 동일 | 증거 확보 완료 |
 | FUNC-012 | JSON 케이스별 Cross/X 점수·판정·expected·PASS/FAIL 출력 | 필수 | `src/json_mode.py`, `src/report.py` | 실제 data.json 전체 실행 | `evidence/json-analysis.md` | 4 | `Feat: JSON 일괄 판정과 결과 요약 구현` | 증거 확보 완료 |
@@ -39,29 +39,29 @@
 | DATA-008 | expected `+`를 `Cross`, `x`를 `X`로 정규화 | 필수 | `src/data_loader.py` | 라벨 변환 수동 확인 | `evidence/json-load.md` | 3 | `Feat: JSON 데이터 로드와 스키마 검증 구현` | 증거 확보 완료 |
 | DATA-009 | filter key `cross`를 `Cross`, `x`를 `X`로 정규화 | 필수 | `src/data_loader.py` | 라벨 변환 수동 확인 | `evidence/json-load.md` | 3 | 동일 | 증거 확보 완료 |
 | DATA-010 | 내부 비교와 출력에 표준 라벨 Cross/X 사용 | 필수 | 전체 | 원본 라벨이 결과 비교에 남지 않는지 확인 | `evidence/json-analysis.md` | 3, 4 | 동일 | 증거 확보 완료 |
-| PERF-001 | MAC 함수 호출 구간 중심으로 시간 측정 | 필수 | `src/mini_npu.py`, `src/performance.py` | 고정 입력 검증·워밍업이 타이머 전에 있고 순수 MAC만 측정하는지 확인 | 새 실행 증거 필요 | 5 | `Feat: 크기별 MAC 성능 분석 구현` | 구현 완료 (단순화 후 재측정 전) |
-| PERF-002 | 크기별 최소 10회 반복 후 평균 계산 | 필수 | `src/mini_npu.py`, `src/performance.py` | 크기별 순수 MAC 10개 측정값의 평균·표준편차 출력 확인 | 새 실행 증거 필요 | 5 | 동일 | 구현 완료 (재측정 전) |
-| PERF-003 | 3×3·5×5·13×13·25×25 성능 분석 | 필수 | `src/performance.py`, `src/report.py` | 기존 Cross/X 필터 재사용과 크기당 한 행 확인 | 새 실행 증거 필요 | 5 | 동일 | 구현 완료 (필터 기반 전환 후 재측정 전) |
-| PERF-004 | 크기/평균 ms/표준편차/CV/N² 연산 횟수 표 출력 | 필수 | `src/report.py` | 한글 표시 폭에 맞춘 열, CV, 9·25·169·625와 새 표준편차 확인 | 새 실행 증거 필요 | 5 | 동일 | 구현 완료 (표 정렬 변경 후 재검증 전) |
+| PERF-001 | MAC 함수 호출 구간 중심으로 시간 측정 | 필수 | `src/mini_npu.py`, `src/performance.py` | 입력 검증·워밍업이 타이머 전에 있고 순수 MAC만 측정하는지 확인 | `evidence/simplified-final-run.md` | 5 | `Feat: 크기별 MAC 성능 분석 구현` | 증거 확보 완료 |
+| PERF-002 | 크기별 최소 10회 반복 후 평균 계산 | 필수 | `src/mini_npu.py`, `src/performance.py`, `src/manual_mode.py` | 모드 1·2가 공통 반복 횟수로 평균·표준편차를 출력하는지 확인 | `evidence/simplified-final-run.md` | 5 | 동일 | 증거 확보 완료 |
+| PERF-003 | 3×3·5×5·13×13·25×25 성능 분석 | 필수 | `src/performance.py`, `src/report.py` | 기존 Cross/X 필터의 네 크기 행 확인 | `evidence/simplified-final-run.md` | 5 | 동일 | 증거 확보 완료 |
+| PERF-004 | 크기/평균 ms/표준편차/CV/N² 연산 횟수 표 출력 | 필수 | `src/report.py` | 정렬된 한글 열과 9·25·169·625 확인 | `evidence/simplified-final-run.md` | 5 | 동일 | 증거 확보 완료 |
 | TECH-001 | Python 3.8 이상에서 실행 | 필수 | 전체 | Python 3.12.13 환경과 사용자 실행 확인 | `docs/worklog.md`, 사용자 실행 로그 | 6 | `Docs: 수동 검증 결과와 문서 동기화` | 실행 검증 완료 |
 | TECH-002 | 외부 라이브러리 없이 표준 라이브러리만 사용 | 필수 | 전체 | import 목록과 의존성 파일 정적 확인 | 코드 리뷰 | 6 | 동일 | 구현 완료 |
 | TECH-003 | MAC에 벡터화 라이브러리 사용 금지, 반복문 직접 구현 | 필수 | `src/mini_npu.py` | 코드 리뷰와 사용자 수동 검증 | 코드 리뷰 | 1 | `Feat: MAC 연산과 판정 로직 구현` | 구현 완료 |
 | TECH-004 | 오류 하나로 프로그램 전체 비정상 종료 방지 | 필수 | `src/menu.py`, `src/data_loader.py`, `src/json_mode.py` | 사용자 입력 재시도 증거와 JSON 예외 흐름 코드 확인 | `evidence/invalid-input.md`, 코드 리뷰 | 2~4 | 관련 기능 커밋 | 구현 완료 |
-| TEST-003 | 모드 1 재현 시나리오 수동 검증 | 필수 | 실행 결과 | 예시 필터·패턴 입력 | `evidence/manual-mode-success.md` | 6 | `Test: 필수 시나리오 검증` | 실행 검증 완료 |
-| TEST-004 | 모드 2 총합과 개별 PASS/FAIL 수동 검증 | 필수 | 실행 결과 | 실제 data.json 결과 대조 | `evidence/json-analysis.md` | 6 | 동일 | 실행 검증 완료 |
-| DOC-001 | README 실행 방법 작성 | 필수 | `README.md` | 단순화 후 `python3 main.py` 최종 재현 | 새 최종 실행 로그 | 6 | `Docs: 실행 방법과 결과 리포트 작성` | 문서 반영 완료 (최신 코드 재현 전) |
+| TEST-003 | 모드 1 재현 시나리오 수동 검증 | 필수 | 실행 결과 | 예시 필터·패턴 입력 | `evidence/simplified-final-run.md` | 6 | `Test: 필수 시나리오 검증` | 증거 확보 완료 |
+| TEST-004 | 모드 2 총합과 개별 PASS/FAIL 수동 검증 | 필수 | 실행 결과 | 실제 data.json 결과 대조 | `evidence/simplified-final-run.md` | 6 | 동일 | 증거 확보 완료 |
+| DOC-001 | README 실행 방법 작성 | 필수 | `README.md` | 단순화 후 `python3 main.py` 최종 재현 | `evidence/simplified-final-run.md` | 6 | `Docs: 실행 방법과 결과 리포트 작성` | 문서 반영 완료 |
 | DOC-002 | README 라벨 정규화·MAC·epsilon 구현 요약 | 필수 | `README.md` | 실제 코드와 대조 | README | 6 | 동일 | 문서 반영 완료 |
 | DOC-003 | README 결과 리포트 10줄 이상 작성 | 필수 | `README.md` | 줄 수와 실제 결과 확인 | README | 6 | 동일 | 문서 반영 완료 |
-| DOC-004 | README 실패 원인과 O(N²) 분석 작성 | 필수 | `README.md` | 새 측정값·실패 로그와 대조 | README | 6 | 동일 | 구현 완료 (새 측정값 반영 전) |
-| EVID-001 | 사용자 모드 정상 실행 결과 확보 | 권장 | `evidence/` | 실제 실행 로그 저장 | Markdown 로그 | 6 | `Test: 필수 시나리오 검증` | 증거 확보 완료 |
+| DOC-004 | README 실패 원인과 O(N²) 분석 작성 | 필수 | `README.md` | 새 측정값·실패 로그와 대조 | README | 6 | 동일 | 문서 반영 완료 |
+| EVID-001 | 사용자 모드 정상 실행 결과 확보 | 권장 | `evidence/` | 실제 실행 로그 저장 | `evidence/simplified-final-run.md` | 6 | `Test: 필수 시나리오 검증` | 증거 확보 완료 |
 | EVID-002 | 잘못된 사용자 입력 재입력 증거 확보 | 권장 | `evidence/` | 실제 입력과 재시도 흐름 기록 | Markdown 로그 | 6 | 동일 | 증거 확보 완료 |
 | EVID-003 | JSON 크기 불일치 케이스 FAIL 증거 확보 | 권장 | 해당 없음 | 사용자 결정으로 생성하지 않음 | 해당 없음 | 6 | 해당 없음 | 제외 (사용자 결정) |
-| EVID-004 | JSON 전체 결과 요약 증거 확보 | 권장 | `evidence/` | 실제 분석 로그 저장 | `evidence/json-analysis.md` | 6 | 동일 | 증거 확보 완료 |
-| EVID-005 | 성능 표 증거 확보 | 권장 | `evidence/` | 중복 없는 크기별 순수 MAC 성능표의 실제 측정 로그 저장 | `evidence/simplified-final-run.md` 예정 | 6 | 동일 | 재수집 필요 |
+| EVID-004 | JSON 전체 결과 요약 증거 확보 | 권장 | `evidence/` | 실제 분석 로그 저장 | `evidence/simplified-final-run.md` | 6 | 동일 | 증거 확보 완료 |
+| EVID-005 | 성능 표 증거 확보 | 권장 | `evidence/` | 네 필수 크기의 순수 MAC 성능표 저장 | `evidence/simplified-final-run.md` | 6 | 동일 | 증거 확보 완료 |
 | ENV-001 | 최종 결과를 macOS zsh에서 재현하고 환경 기록 | 필수 | 전체 | 단순화 후 메뉴 1·2 실행과 운영체제·CPU 확인 | `evidence/mac-status.png`, 새 최종 로그 | 6 | `Test: macOS 최종 재현 검증` | 환경 증거 확보 / 최신 코드 재검증 전 |
-| BONUS-001 | 2차원 배열을 1차원으로 변환한 최적화 비교 | 선택 | `src/mini_npu.py`, `src/performance.py`, `src/report.py` | 검증을 제외한 네 크기의 10회 1차원 평균·표준편차 확인 후 2차원 결과와 분석 | 새 실행 로그 | 7 | `Feat: 1차원 MAC 최적화 비교 추가` | 구현 완료 (재측정 전) |
-| BONUS-002 | 3 이상의 홀수 N×N Cross/X 패턴 생성 후 모드 1·성능 분석 재사용 | 선택 | `src/pattern_generator.py`, `src/menu.py`, `src/manual_mode.py`, `src/performance.py` | 자동 생성·교체·재사용과 생성 크기의 중복 없는 필터 기반 성능표 확인 | 기존 생성 증거 + 새 실행 로그 | 필수 완료 후 | `Feat: N×N 필터 생성과 성능 재사용 추가` | 구현 완료 (필터 기반 출력 재검증 전) |
-| BENCH-001 | 묶음 MAC 측정으로 타이머 오버헤드 영향 비교 | 선택 | `benchmark_batch.py` | 위치 인자 10·100·1000을 각각 전달해 공식 표와 같은 형식의 묶음 2차원·1차원 결과 확인 | `evidence/individual-batch-comparison.md`, `evidence/batch-benchmark.md` | 필수 결과와 분리 | `Feat: 묶음 MAC 벤치마크 분리` | 증거 확보 완료 |
+| BONUS-001 | 2차원 배열을 1차원으로 변환한 최적화 비교 | 선택 | `src/mini_npu.py`, `src/performance.py`, `src/report.py` | 네 크기의 10회 1차원 평균·표준편차와 2차원 결과 비교 | `evidence/simplified-final-run.md`, `evidence/performance-repetition-experiments.md` | 7 | `Feat: 1차원 MAC 최적화 비교 추가` | 증거 확보 완료 |
+| BONUS-002 | 3 이상의 홀수 N×N Cross/X 패턴 생성 후 모드 1·성능 분석 재사용 | 선택 | `src/pattern_generator.py`, `src/menu.py`, `src/manual_mode.py`, `src/performance.py` | 자동 생성·교체·재사용과 생성 크기의 중복 없는 필터 기반 성능표 확인 | `evidence/manual-nxn-filter-flow.md`, `evidence/generated-filter-merge.md` | 필수 완료 후 | `Feat: N×N 필터 생성과 성능 재사용 추가` | 새 크기 재사용 증거 확보 / JSON 동일 크기 중복 재검증 전 |
+| BENCH-001 | 묶음 MAC 측정으로 타이머 오버헤드 영향 비교 | 선택 | `benchmark_batch.py` | 위치 인자 10·100·1000의 묶음 2차원·1차원 결과 확인 | `evidence/performance-repetition-experiments.md` | 필수 결과와 분리 | `Feat: 묶음 MAC 벤치마크 분리` | 최신 증거 확보 완료 |
 
 ## 별도 실행을 생략한 항목
 
@@ -70,7 +70,7 @@
 
 두 항목은 필수 처리 코드가 구현되어 있으나 별도 실행 증거는 사용자 결정으로 생성하지 않는다.
 
-보너스 확장 항목인 짝수·3 미만 크기 재입력은 별도 실행하지 않았다. 필터 생성과 모드 1 자동 생성·저장 필터 선택은 이전 구조에서 실제 실행으로 확인했다. 기존 필터 재사용과 생성 크기 중복 제거는 최신 구조로 재검증해야 한다.
+보너스 확장 항목인 짝수·3 미만 크기 재입력은 별도 실행하지 않았다. 필터 생성과 모드 1 자동 생성·저장 필터 선택은 이전 구조에서 실제 실행으로 확인했고, 새 7×7 생성 필터의 모드 2 재사용은 최신 구조에서 확인했다. JSON과 같은 생성 크기의 중복 제거는 재검증해야 한다.
 
 ## 확인된 data.json 구조
 
