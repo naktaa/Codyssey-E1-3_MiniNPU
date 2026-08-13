@@ -4,13 +4,18 @@ from src.data_loader import (
     DataLoadError,
     DataValidationError,
     build_pattern_case,
+    get_filter_pair,
     get_filter_sizes,
     get_raw_pattern_cases,
     load_data,
 )
 from src.mini_npu import DEFAULT_EPSILON, calculate_mac, classify_scores
-from src.performance import measure_1d_performance, measure_size_performance
-from src.pattern_generator import MatrixStore
+from src.performance import (
+    get_performance_filter_pairs,
+    measure_1d_performance,
+    measure_size_performance,
+)
+from src.pattern_generator import GeneratedStore
 from src.report import (
     CaseResult,
     print_case_result,
@@ -20,7 +25,7 @@ from src.report import (
 )
 
 
-def run_json_mode(matrix_store: MatrixStore) -> None:
+def run_json_mode(generated_store: GeneratedStore) -> None:
     """data.json을 읽어 케이스별 MAC 판정과 전체 결과를 출력한다."""
 
     print("\n[data.json 일괄 분석]")
@@ -28,6 +33,10 @@ def run_json_mode(matrix_store: MatrixStore) -> None:
     try:
         document = load_data()
         filter_sizes = get_filter_sizes(document)
+        json_filters = {
+            size: get_filter_pair(document, size)
+            for size in filter_sizes
+        }
         raw_cases = get_raw_pattern_cases(document)
     except (DataLoadError, DataValidationError) as error:
         print(f"분석 실패: {error}")
@@ -38,8 +47,6 @@ def run_json_mode(matrix_store: MatrixStore) -> None:
     print("\n[케이스별 결과]")
 
     results = []
-    performance_cases = {}
-
     for case_id, raw_case in raw_cases:
         try:
             pattern_case = build_pattern_case(document, case_id, raw_case)
@@ -78,18 +85,6 @@ def run_json_mode(matrix_store: MatrixStore) -> None:
             print_case_result(result)
             continue
 
-        if pattern_case.size not in performance_cases:
-            performance_cases[pattern_case.size] = pattern_case
-
-        if pattern_case.size not in matrix_store:
-            matrix_store[pattern_case.size] = {
-                "filters": {
-                    "Cross": pattern_case.filter_cross,
-                    "X": pattern_case.filter_x,
-                },
-                "pattern": pattern_case.pattern,
-            }
-
         passed = predicted == pattern_case.expected
         reason = None
         if not passed:
@@ -109,27 +104,26 @@ def run_json_mode(matrix_store: MatrixStore) -> None:
         results.append(result)
         print_case_result(result)
 
+    performance_filters = get_performance_filter_pairs(
+        json_filters,
+        generated_store,
+    )
+
     try:
-        performance_results = measure_size_performance(
-            performance_cases,
-            matrix_store,
-        )
+        performance_results = measure_size_performance(performance_filters)
     except ValueError as error:
         print(f"\n성능 분석 실패: {error}")
         print_summary(results, DEFAULT_EPSILON)
         return
 
-    print_performance_report(performance_results)
-
     try:
-        one_d_results = measure_1d_performance(
-            performance_cases,
-            matrix_store,
-        )
+        one_d_results = measure_1d_performance(performance_filters)
     except ValueError as error:
         print(f"\n1차원 성능 분석 실패: {error}")
         print_summary(results, DEFAULT_EPSILON)
         return
 
+    print_performance_report(performance_results)
     print_1d_performance_report(one_d_results)
+
     print_summary(results, DEFAULT_EPSILON)

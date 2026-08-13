@@ -2,13 +2,13 @@
 
 from src.manual_mode import run_manual_mode
 from src.json_mode import run_json_mode
-from src.pattern_generator import MatrixStore, run_filter_generator
+from src.pattern_generator import GeneratedStore, run_filter_generator
 
 
 def run_menu() -> None:
     """메뉴를 표시하고 사용자가 선택한 모드로 이동한다."""
 
-    matrix_store: MatrixStore = {}
+    generated_store: GeneratedStore = {}
 
     while True:
         _print_menu()
@@ -20,13 +20,13 @@ def run_menu() -> None:
             return
 
         if choice == "1":
-            _run_manual_mode_safely(matrix_store)
+            _run_manual_mode_safely(generated_store)
             continue
         if choice == "2":
-            run_json_mode(matrix_store)
+            run_json_mode(generated_store)
             continue
         if choice == "3":
-            _run_filter_generator_safely(matrix_store)
+            _run_filter_generator_safely(generated_store)
             continue
         if choice == "4":
             _print_exit_message()
@@ -45,20 +45,20 @@ def _print_menu() -> None:
     print("4. 종료")
 
 
-def _run_manual_mode_safely(matrix_store: MatrixStore) -> None:
+def _run_manual_mode_safely(generated_store: GeneratedStore) -> None:
     """사용자 입력 취소를 처리하면서 사용자 입력 모드를 실행한다."""
 
     try:
-        run_manual_mode(matrix_store)
+        run_manual_mode(generated_store)
     except (EOFError, KeyboardInterrupt):
         print("\n입력이 취소되어 메뉴로 돌아갑니다.")
 
 
-def _run_filter_generator_safely(matrix_store: MatrixStore) -> None:
+def _run_filter_generator_safely(generated_store: GeneratedStore) -> None:
     """필터 크기 입력 취소를 처리하면서 생성기를 실행한다."""
 
     try:
-        run_filter_generator(matrix_store)
+        run_filter_generator(generated_store)
     except (EOFError, KeyboardInterrupt):
         print("\n입력이 취소되어 메뉴로 돌아갑니다.")
 

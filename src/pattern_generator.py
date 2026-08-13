@@ -1,15 +1,16 @@
-"""N×N Cross/X 필터 생성과 실행 중 행렬 저장소 관리."""
+"""N×N Cross/X 필터 생성과 실행 중 생성 데이터 관리."""
 
-from typing import Any, Dict, List
+from typing import Dict, List
 
 from src.mini_npu import LABEL_CROSS, LABEL_X
 
 
 MatrixList = List[List[float]]
-MatrixStore = Dict[int, Dict[str, Any]]
+FilterPair = Dict[str, MatrixList]
+GeneratedStore = Dict[int, FilterPair]
 
 
-def generate_filter_pair(size: int) -> Dict[str, MatrixList]:
+def generate_filter_pair(size: int) -> FilterPair:
     """지정한 크기의 Cross와 X 필터를 0.0과 1.0으로 생성한다."""
 
     if size < 3 or size % 2 == 0:
@@ -41,18 +42,15 @@ def generate_filter_pair(size: int) -> Dict[str, MatrixList]:
     }
 
 
-def run_filter_generator(matrix_store: MatrixStore) -> None:
+def run_filter_generator(generated_store: GeneratedStore) -> None:
     """크기를 입력받아 필터를 생성하고 실행 중 저장소에 보관한다."""
 
     print("\n[N×N Cross/X 필터 생성]")
     size = read_matrix_size()
     filters = generate_filter_pair(size)
-    filter_existed = size in matrix_store
+    filter_existed = size in generated_store
 
-    matrix_store[size] = {
-        "filters": filters,
-        "pattern": filters[LABEL_CROSS],
-    }
+    generated_store[size] = filters
 
     print(f"\n[생성된 {size}x{size} 필터]")
     print("\n--- Cross ---")

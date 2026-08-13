@@ -1,24 +1,30 @@
-"""3x3·5x5·13x13·25x25 MAC 성능 측정."""
-from dataclasses import dataclass
-from typing import List, Mapping, Sequence, Tuple
+"""행렬 크기별 2차원·1차원 MAC 성능 측정."""
 
-from src.data_loader import Matrix, PatternCase
+from dataclasses import dataclass
+
 from src.mini_npu import (
     LABEL_CROSS,
+    LABEL_X,
     flatten_matrix,
     measure_mac_1d_time_stats_ms,
     measure_mac_time_stats_ms,
 )
-from src.pattern_generator import MatrixStore
 
 
 PERFORMANCE_REPETITIONS = 10
 REQUIRED_SIZES = (3, 5, 13, 25)
-BASELINE_3X3: Matrix = (
-    (0.0, 1.0, 0.0),
-    (1.0, 1.0, 1.0),
-    (0.0, 1.0, 0.0),
-)
+BASELINE_3X3_FILTERS = {
+    LABEL_CROSS: (
+        (0.0, 1.0, 0.0),
+        (1.0, 1.0, 1.0),
+        (0.0, 1.0, 0.0),
+    ),
+    LABEL_X: (
+        (1.0, 0.0, 1.0),
+        (0.0, 1.0, 0.0),
+        (1.0, 0.0, 1.0),
+    ),
+}
 
 
 @dataclass(frozen=True)
@@ -40,35 +46,40 @@ class PerformanceResult:
         return self.standard_deviation_ms / self.average_time_ms * 100.0
 
 
+def get_performance_filter_pairs(json_filters, generated_filters) -> dict:
+    """기존 필터를 크기별 하나의 성능 입력으로 합친다."""
+
+    filter_pairs = {3: BASELINE_3X3_FILTERS}
+    filter_pairs.update(json_filters)
+
+    for size, filters in generated_filters.items():
+        if size not in filter_pairs:
+            filter_pairs[size] = filters
+
+    return filter_pairs
+
+
 def measure_size_performance(
-    pattern_cases: Mapping[int, PatternCase],
-    matrix_store: MatrixStore,
+    filter_pairs,
     repetitions: int = PERFORMANCE_REPETITIONS,
-) -> List[PerformanceResult]:
-    """필수 크기와 실행 중 생성 크기의 2차원 MAC 평균 시간을 측정한다."""
+) -> list:
+    """크기별 Cross/X 필터의 2차원 MAC 시간을 측정한다."""
 
     results = []
 
-    sizes = sorted(set(REQUIRED_SIZES) | set(matrix_store))
-
-    for size in sizes:
-        pattern, filter_cross = get_measurement_input(
-            size,
-            pattern_cases,
-            matrix_store,
-        )
+    for size in sorted(filter_pairs):
+        filters = filter_pairs[size]
         average_time_ms, standard_deviation_ms = measure_mac_time_stats_ms(
-            pattern,
-            filter_cross,
+            filters[LABEL_CROSS],
+            filters[LABEL_X],
             repetitions,
         )
         results.append(
-            PerformanceResult(
-                size=size,
-                average_time_ms=average_time_ms,
-                standard_deviation_ms=standard_deviation_ms,
-                operation_count=size * size,
-                repetitions=repetitions,
+            _build_result(
+                size,
+                average_time_ms,
+                standard_deviation_ms,
+                repetitions,
             )
         )
 
@@ -76,64 +87,46 @@ def measure_size_performance(
 
 
 def measure_1d_performance(
-    pattern_cases: Mapping[int, PatternCase],
-    matrix_store: MatrixStore,
+    filter_pairs,
     repetitions: int = PERFORMANCE_REPETITIONS,
-) -> List[PerformanceResult]:
-    """필수 크기와 실행 중 생성 크기의 1차원 MAC 평균 시간을 측정한다."""
+) -> list:
+    """크기별 Cross/X 필터의 1차원 MAC 시간을 측정한다."""
 
     results = []
 
-    sizes = sorted(set(REQUIRED_SIZES) | set(matrix_store))
-
-    for size in sizes:
-        pattern, filter_cross = get_measurement_input(
-            size,
-            pattern_cases,
-            matrix_store,
-        )
-        flat_pattern = flatten_matrix(pattern)
-        flat_filter = flatten_matrix(filter_cross)
-
+    for size in sorted(filter_pairs):
+        filters = filter_pairs[size]
+        flat_cross = flatten_matrix(filters[LABEL_CROSS])
+        flat_x = flatten_matrix(filters[LABEL_X])
         average_time_ms, standard_deviation_ms = measure_mac_1d_time_stats_ms(
-            flat_pattern,
-            flat_filter,
+            flat_cross,
+            flat_x,
             repetitions,
         )
-
         results.append(
-            PerformanceResult(
-                size=size,
-                average_time_ms=average_time_ms,
-                standard_deviation_ms=standard_deviation_ms,
-                operation_count=size * size,
-                repetitions=repetitions,
+            _build_result(
+                size,
+                average_time_ms,
+                standard_deviation_ms,
+                repetitions,
             )
         )
 
     return results
 
 
-def get_measurement_input(
+def _build_result(
     size: int,
-    pattern_cases: Mapping[int, PatternCase],
-    matrix_store: MatrixStore,
-) -> Tuple[Sequence[Sequence[float]], Sequence[Sequence[float]]]:
-    """크기별 성능 측정에 사용할 패턴과 Cross 필터를 반환한다."""
+    average_time_ms: float,
+    standard_deviation_ms: float,
+    repetitions: int,
+) -> PerformanceResult:
+    """측정값을 공통 성능 결과로 구성한다."""
 
-    if size in matrix_store:
-        stored = matrix_store[size]
-        filters = stored["filters"]
-        return stored["pattern"], filters[LABEL_CROSS]
-
-    if size == 3:
-        return BASELINE_3X3, BASELINE_3X3
-
-    if size not in pattern_cases:
-        raise ValueError(f"{size}x{size} 성능 측정용 정상 케이스가 없습니다.")
-
-    pattern_case = pattern_cases[size]
-    return (
-        pattern_case.pattern,
-        pattern_case.filter_cross,
+    return PerformanceResult(
+        size=size,
+        average_time_ms=average_time_ms,
+        standard_deviation_ms=standard_deviation_ms,
+        operation_count=size * size,
+        repetitions=repetitions,
     )

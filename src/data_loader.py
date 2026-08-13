@@ -5,7 +5,7 @@ import re
 from dataclasses import dataclass
 from numbers import Real
 from pathlib import Path
-from typing import Any, Dict, List, Mapping, Sequence, Tuple
+from typing import List, Sequence
 
 from src.mini_npu import LABEL_CROSS, LABEL_X, validate_square_matrix
 
@@ -38,7 +38,7 @@ class PatternCase:
     filter_x: Matrix
 
 
-def load_data(path: Path = DEFAULT_DATA_PATH) -> Mapping[str, Any]:
+def load_data(path: Path = DEFAULT_DATA_PATH):
     """UTF-8 JSON 문서를 읽고 최상위 객체를 반환한다."""
 
     try:
@@ -65,7 +65,7 @@ def load_data(path: Path = DEFAULT_DATA_PATH) -> Mapping[str, Any]:
     return document
 
 
-def get_filter_sizes(document: Mapping[str, Any]) -> List[int]:
+def get_filter_sizes(document) -> List[int]:
     """filters 아래에서 size_N 형식의 필터 크기를 찾아 정렬해 반환한다."""
 
     filters = _required_mapping(document, "filters", "JSON 최상위")
@@ -83,9 +83,7 @@ def get_filter_sizes(document: Mapping[str, Any]) -> List[int]:
     return sorted(sizes)
 
 
-def get_raw_pattern_cases(
-    document: Mapping[str, Any],
-) -> List[Tuple[str, Any]]:
+def get_raw_pattern_cases(document):
     """patterns 객체의 케이스를 원래 순서대로 반환한다."""
 
     patterns = _required_mapping(document, "patterns", "JSON 최상위")
@@ -99,11 +97,7 @@ def get_raw_pattern_cases(
     return cases
 
 
-def build_pattern_case(
-    document: Mapping[str, Any],
-    case_id: str,
-    raw_case: Any,
-) -> PatternCase:
+def build_pattern_case(document, case_id: str, raw_case) -> PatternCase:
     """패턴 한 건과 대응 필터를 검증하고 내부 표준 형태로 반환한다."""
 
     size = parse_pattern_size(case_id)
@@ -151,7 +145,7 @@ def parse_pattern_size(case_id: str) -> int:
     return int(match.group(1))
 
 
-def get_filter_pair(document: Mapping[str, Any], size: int) -> Dict[str, Matrix]:
+def get_filter_pair(document, size: int) -> dict:
     """요청한 크기의 필터를 Cross/X 라벨로 정규화해 반환한다."""
 
     filters = _required_mapping(document, "filters", "JSON 최상위")
@@ -183,7 +177,7 @@ def get_filter_pair(document: Mapping[str, Any], size: int) -> Dict[str, Matrix]
     return normalized
 
 
-def normalize_expected_label(value: Any) -> str:
+def normalize_expected_label(value) -> str:
     """expected의 +, cross, x 값을 내부 Cross/X 라벨로 변환한다."""
 
     if not isinstance(value, str):
@@ -197,7 +191,7 @@ def normalize_expected_label(value: Any) -> str:
     raise DataValidationError(f"지원하지 않는 expected 라벨입니다: {value!r}")
 
 
-def normalize_filter_label(value: Any) -> str:
+def normalize_filter_label(value) -> str:
     """필터 키의 cross, x 값을 내부 Cross/X 라벨로 변환한다."""
 
     if not isinstance(value, str):
@@ -212,10 +206,10 @@ def normalize_filter_label(value: Any) -> str:
 
 
 def _required_mapping(
-    container: Mapping[str, Any],
+    container,
     key: str,
     location: str,
-) -> Mapping[str, Any]:
+):
     """필수 키가 객체인지 확인해 반환한다."""
 
     if key not in container:
@@ -227,7 +221,7 @@ def _required_mapping(
     return value
 
 
-def _validated_matrix(value: Any, name: str) -> int:
+def _validated_matrix(value, name: str) -> int:
     """핵심 행렬 검증 오류를 JSON 데이터 오류로 변환한다."""
 
     try:

@@ -1,10 +1,8 @@
 """JSON 케이스별 판정 결과와 전체 요약 출력."""
 
+import unicodedata
 from dataclasses import dataclass
-from typing import List, Optional, Sequence
-
-from src.mini_npu import WARMUP_REPETITIONS
-from src.performance import PerformanceResult
+from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -40,13 +38,11 @@ def print_case_result(result: CaseResult) -> None:
         print(f"사유: {result.reason}")
 
 
-def print_summary(results: Sequence[CaseResult], epsilon: float) -> None:
+def print_summary(results, epsilon: float) -> None:
     """전체·통과·실패 수와 실패 케이스 사유를 출력한다."""
 
     passed_count = sum(1 for result in results if result.passed)
-    failed_results: List[CaseResult] = [
-        result for result in results if not result.passed
-    ]
+    failed_results = [result for result in results if not result.passed]
 
     print("\n[전체 결과]")
     print(f"전체 케이스: {len(results)}")
@@ -64,50 +60,95 @@ def print_summary(results: Sequence[CaseResult], epsilon: float) -> None:
         print(f"- {result.case_id}: {reason}")
 
 
-def print_performance_report(results: Sequence[PerformanceResult]) -> None:
-    """크기별 2차원 MAC 성능을 정렬된 표로 출력한다."""
+def print_performance_report(results) -> None:
+    """2차원 MAC 성능을 크기순으로 출력한다."""
 
-    print_performance_table(
-        results,
-        "크기별 MAC 성능",
-        f"워밍업 {WARMUP_REPETITIONS}회(측정 제외) 후 "
-        "단일 MAC 호출을 독립 측정",
-    )
+    print_performance_table(results, "2차원 MAC 성능")
 
 
-def print_1d_performance_report(results: Sequence[PerformanceResult]) -> None:
-    """1차원 MAC의 크기별 성능 표를 출력한다."""
+def print_1d_performance_report(results) -> None:
+    """1차원 MAC 성능을 크기순으로 출력한다."""
 
-    print_performance_table(
-        results,
-        "1차원 MAC 성능",
-        f"워밍업 {WARMUP_REPETITIONS}회(측정 제외) 후 "
-        "단일 MAC 호출을 독립 측정",
-    )
+    print_performance_table(results, "1차원 MAC 성능")
 
 
 def print_performance_table(
-    results: Sequence[PerformanceResult],
+    results,
     title: str,
-    measurement_description: str,
 ) -> None:
-    """공식·비공식 성능 결과를 같은 열 구성으로 출력한다."""
+    """성능 결과를 크기순으로 출력한다."""
+
+    headers = (
+        "크기(NxN)",
+        "평균 시간(ms)",
+        "표준편차(ms)",
+        "CV(%)",
+        "N² 연산 수",
+        "반복 횟수",
+    )
+    rows = []
+    for result in sorted(results, key=lambda item: item.size):
+        rows.append(
+            (
+                f"{result.size}x{result.size}",
+                f"{result.average_time_ms:.6f}",
+                f"{result.standard_deviation_ms:.6f}",
+                f"{result.coefficient_of_variation:.2f}",
+                str(result.operation_count),
+                str(result.repetitions),
+            )
+        )
+
+    widths = []
+    for column_index, header in enumerate(headers):
+        value_widths = [
+            _display_width(row[column_index])
+            for row in rows
+        ]
+        widths.append(max([_display_width(header)] + value_widths))
 
     print(f"\n[{title}]")
-    print(f"측정 방식: {measurement_description}")
-    print(
-        "크기(NxN) | 평균 시간(ms) | 표준편차(ms) | "
-        "CV(%) | N² 연산 수 | 반복 횟수"
-    )
-    print("-" * 77)
+    print(_format_table_row(headers, widths, "center"))
+    print("-+-".join("-" * width for width in widths))
 
-    for result in results:
-        size_text = f"{result.size}x{result.size}"
-        print(
-            f"{size_text:<9} | "
-            f"{result.average_time_ms:>12.6f} | "
-            f"{result.standard_deviation_ms:>11.6f} | "
-            f"{result.coefficient_of_variation:>5.2f} | "
-            f"{result.operation_count:>7} | "
-            f"{result.repetitions:>11}"
-        )
+    for row in rows:
+        print(_format_table_row(row, widths, "right", first_left=True))
+
+
+def _format_table_row(
+    values,
+    widths,
+    alignment: str,
+    first_left: bool = False,
+) -> str:
+    """터미널 표시 폭에 맞춰 표 한 행을 만든다."""
+
+    cells = []
+    for index, value in enumerate(values):
+        cell_alignment = "left" if first_left and index == 0 else alignment
+        cells.append(_pad_display(value, widths[index], cell_alignment))
+    return " | ".join(cells)
+
+
+def _pad_display(value: str, width: int, alignment: str) -> str:
+    """한글 표시 폭을 고려해 문자열에 공백을 붙인다."""
+
+    padding = max(0, width - _display_width(value))
+    if alignment == "right":
+        return " " * padding + value
+    if alignment == "center":
+        left_padding = padding // 2
+        return " " * left_padding + value + " " * (padding - left_padding)
+    return value + " " * padding
+
+
+def _display_width(value: str) -> int:
+    """터미널에서 사용하는 문자열의 표시 칸 수를 계산한다."""
+
+    width = 0
+    for character in value:
+        if unicodedata.east_asian_width(character) in ("W", "F"):
+            width += 2
+        else:
+            width += 1
+    return width

@@ -4,7 +4,7 @@ import math
 import statistics
 import time
 from numbers import Real
-from typing import List, Sequence, Tuple
+from typing import List, Sequence
 
 
 DEFAULT_EPSILON = 1e-9
@@ -15,7 +15,7 @@ LABEL_X = "X"
 LABEL_UNDECIDED = "UNDECIDED"
 
 
-def validate_square_matrix(matrix: Sequence[Sequence[Real]], name: str = "matrix") -> int:
+def validate_square_matrix(matrix, name: str = "matrix") -> int:
     """행렬이 숫자로 구성된 비어 있지 않은 정사각형인지 검증한다.
 
     검증에 성공하면 한 변의 크기를 반환하고, 실패하면 ValueError를 발생시킨다.
@@ -51,10 +51,7 @@ def validate_square_matrix(matrix: Sequence[Sequence[Real]], name: str = "matrix
     return size
 
 
-def calculate_mac(
-    pattern: Sequence[Sequence[Real]],
-    filter_matrix: Sequence[Sequence[Real]],
-) -> float:
+def calculate_mac(pattern, filter_matrix) -> float:
     """검증된 같은 크기 행렬의 위치별 곱을 누적한 MAC 점수를 반환한다."""
 
     score = 0.0
@@ -70,7 +67,7 @@ def calculate_mac(
     return score
 
 
-def flatten_matrix(matrix: Sequence[Sequence[Real]]) -> List[float]:
+def flatten_matrix(matrix) -> List[float]:
     """2차원 정사각형 행렬을 행 순서의 1차원 리스트로 변환한다."""
 
     size = validate_square_matrix(matrix)
@@ -83,10 +80,7 @@ def flatten_matrix(matrix: Sequence[Sequence[Real]]) -> List[float]:
     return flattened
 
 
-def calculate_mac_1d(
-    pattern: Sequence[Real],
-    filter_values: Sequence[Real],
-) -> float:
+def calculate_mac_1d(pattern, filter_values) -> float:
     """검증된 같은 길이 벡터의 위치별 곱을 누적한다."""
 
     score = 0.0
@@ -99,30 +93,28 @@ def calculate_mac_1d(
 
 
 def classify_scores(
-    score_cross: Real,
-    score_x: Real,
-    epsilon: Real = DEFAULT_EPSILON,
+    score_cross,
+    score_x,
+    epsilon: float = DEFAULT_EPSILON,
 ) -> str:
     """두 점수를 epsilon 기준으로 비교해 Cross, X 또는 UNDECIDED를 반환한다."""
 
-    cross = _validated_number(score_cross, "score_cross")
-    x_score = _validated_number(score_x, "score_x")
-    epsilon_value = _validated_number(epsilon, "epsilon")
-
-    if epsilon_value <= 0.0:
+    if not math.isfinite(epsilon) or epsilon <= 0.0:
         raise ValueError("epsilon must be greater than zero.")
-    if abs(cross - x_score) < epsilon_value:
+    if not math.isfinite(score_cross) or not math.isfinite(score_x):
+        raise ValueError("MAC scores must be finite.")
+    if abs(score_cross - score_x) < epsilon:
         return LABEL_UNDECIDED
-    if cross > x_score:
+    if score_cross > score_x:
         return LABEL_CROSS
     return LABEL_X
 
 
 def measure_mac_time_stats_ms(
-    pattern: Sequence[Sequence[Real]],
-    filter_matrix: Sequence[Sequence[Real]],
+    pattern,
+    filter_matrix,
     repetitions: int,
-) -> Tuple[float, float]:
+):
     """독립 측정한 MAC 시간의 평균과 표준편차를 밀리초로 반환한다.
 
     행렬 구조와 크기는 타이머 시작 전에 한 번 검증한다. 같은 입력으로
@@ -131,8 +123,6 @@ def measure_mac_time_stats_ms(
     perf_counter_ns로 측정해 모집단 표준편차를 계산한다.
     """
 
-    if isinstance(repetitions, bool) or not isinstance(repetitions, int):
-        raise ValueError("repetitions must be an integer.")
     if repetitions < MIN_TIMING_REPETITIONS:
         raise ValueError(
             f"repetitions must be at least {MIN_TIMING_REPETITIONS}."
@@ -164,14 +154,12 @@ def measure_mac_time_stats_ms(
 
 
 def measure_mac_1d_time_stats_ms(
-    pattern: Sequence[Real],
-    filter_values: Sequence[Real],
+    pattern,
+    filter_values,
     repetitions: int,
-) -> Tuple[float, float]:
+):
     """워밍업 후 1차원 MAC 호출을 독립 측정해 통계를 반환한다."""
 
-    if isinstance(repetitions, bool) or not isinstance(repetitions, int):
-        raise ValueError("repetitions must be an integer.")
     if repetitions < MIN_TIMING_REPETITIONS:
         raise ValueError(
             f"repetitions must be at least {MIN_TIMING_REPETITIONS}."
@@ -196,15 +184,3 @@ def measure_mac_1d_time_stats_ms(
         statistics.fmean(measured_times_ms),
         statistics.pstdev(measured_times_ms),
     )
-
-
-def _validated_number(value: Real, name: str) -> float:
-    """판정에 사용할 값을 유한한 float로 변환한다."""
-
-    if isinstance(value, bool) or not isinstance(value, Real):
-        raise ValueError(f"{name} must be a number.")
-
-    converted = float(value)
-    if not math.isfinite(converted):
-        raise ValueError(f"{name} must be finite.")
-    return converted

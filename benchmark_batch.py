@@ -3,17 +3,16 @@
 import statistics
 import sys
 import time
-from typing import Dict, List, Sequence, Tuple
 
 from src.data_loader import (
     DataLoadError,
     DataValidationError,
-    PatternCase,
-    build_pattern_case,
-    get_raw_pattern_cases,
+    get_filter_pair,
     load_data,
 )
 from src.mini_npu import (
+    LABEL_CROSS,
+    LABEL_X,
     WARMUP_REPETITIONS,
     calculate_mac,
     calculate_mac_1d,
@@ -23,7 +22,7 @@ from src.mini_npu import (
 from src.performance import (
     REQUIRED_SIZES,
     PerformanceResult,
-    get_measurement_input,
+    get_performance_filter_pairs,
 )
 from src.report import print_performance_table
 
@@ -37,8 +36,7 @@ def main() -> None:
 
     try:
         repetitions = _parse_repetitions(sys.argv)
-        pattern_cases = _load_first_valid_cases()
-        inputs = _build_inputs(pattern_cases)
+        inputs = _build_inputs()
     except (DataLoadError, DataValidationError, ValueError) as error:
         print(f"벤치마크 준비 실패: {error}")
         return
@@ -51,23 +49,17 @@ def main() -> None:
     print("측정 순서: 크기 오름차순, 각 크기에서 2차원 후 1차원")
 
     two_d_results, one_d_results = _measure_batches(inputs, repetitions)
-    measurement_description = (
-        f"타이머 한 쌍 안에서 MAC {repetitions}회 실행, "
-        f"묶음 표본 {BATCH_SAMPLE_COUNT}개"
-    )
     print_performance_table(
         two_d_results,
         "묶음 2차원 MAC 성능",
-        measurement_description,
     )
     print_performance_table(
         one_d_results,
         "묶음 1차원 MAC 성능",
-        measurement_description,
     )
 
 
-def _parse_repetitions(arguments: Sequence[str]) -> int:
+def _parse_repetitions(arguments) -> int:
     """명령행에서 10·100·1000 중 하나를 읽는다."""
 
     if len(arguments) != 2:
@@ -85,61 +77,34 @@ def _parse_repetitions(arguments: Sequence[str]) -> int:
     return repetitions
 
 
-def _load_first_valid_cases() -> Dict[int, PatternCase]:
-    """data.json에서 크기별 첫 정상 패턴을 선택한다."""
+def _build_inputs() -> dict:
+    """공식 성능 분석과 같은 네 크기의 필터 쌍을 구성한다."""
 
     document = load_data()
-    pattern_cases: Dict[int, PatternCase] = {}
-
-    for case_id, raw_case in get_raw_pattern_cases(document):
-        try:
-            pattern_case = build_pattern_case(document, case_id, raw_case)
-        except DataValidationError:
-            continue
-
-        if pattern_case.size not in pattern_cases:
-            pattern_cases[pattern_case.size] = pattern_case
-
-    return pattern_cases
+    json_filters = {
+        size: get_filter_pair(document, size)
+        for size in REQUIRED_SIZES
+        if size != 3
+    }
+    return get_performance_filter_pairs(json_filters, {})
 
 
-def _build_inputs(
-    pattern_cases: Dict[int, PatternCase],
-) -> Dict[int, Tuple[Sequence[Sequence[float]], Sequence[Sequence[float]]]]:
-    """공식 성능 분석과 같은 네 크기의 입력을 구성한다."""
-
-    inputs = {}
-    matrix_store = {}
-
-    for size in REQUIRED_SIZES:
-        inputs[size] = get_measurement_input(
-            size,
-            pattern_cases,
-            matrix_store,
-        )
-    return inputs
-
-
-def _measure_batches(
-    inputs: Dict[
-        int,
-        Tuple[Sequence[Sequence[float]], Sequence[Sequence[float]]],
-    ],
-    repetitions: int,
-) -> Tuple[List[PerformanceResult], List[PerformanceResult]]:
+def _measure_batches(inputs, repetitions: int):
     """MAC을 한 타이머 구간에서 반복한 2차원·1차원 결과를 만든다."""
 
     two_d_results = []
     one_d_results = []
 
     for size in REQUIRED_SIZES:
-        pattern, filter_cross = inputs[size]
-        flat_pattern = flatten_matrix(pattern)
-        flat_filter = flatten_matrix(filter_cross)
+        filters = inputs[size]
+        filter_cross = filters[LABEL_CROSS]
+        filter_x = filters[LABEL_X]
+        flat_cross = flatten_matrix(filter_cross)
+        flat_x = flatten_matrix(filter_x)
 
         average_ms, standard_deviation_ms = _measure_2d_batch(
-            pattern,
             filter_cross,
+            filter_x,
             repetitions,
         )
         two_d_results.append(
@@ -152,8 +117,8 @@ def _measure_batches(
         )
 
         average_ms, standard_deviation_ms = _measure_1d_batch(
-            flat_pattern,
-            flat_filter,
+            flat_cross,
+            flat_x,
             repetitions,
         )
         one_d_results.append(
@@ -169,10 +134,10 @@ def _measure_batches(
 
 
 def _measure_2d_batch(
-    pattern: Sequence[Sequence[float]],
-    filter_matrix: Sequence[Sequence[float]],
+    pattern,
+    filter_matrix,
     repetitions: int,
-) -> Tuple[float, float]:
+):
     """2차원 묶음별 호출당 평균의 통계를 반환한다."""
 
     pattern_size = validate_square_matrix(pattern, "pattern")
@@ -195,10 +160,10 @@ def _measure_2d_batch(
 
 
 def _measure_1d_batch(
-    pattern: Sequence[float],
-    filter_values: Sequence[float],
+    pattern,
+    filter_values,
     repetitions: int,
-) -> Tuple[float, float]:
+):
     """1차원 묶음별 호출당 평균의 통계를 반환한다."""
 
     if len(pattern) != len(filter_values):
