@@ -245,6 +245,7 @@ CPU는 다양한 분기와 범용 작업을 유연하게 처리하지만 이 구
 
 ### 관련 문서
 
+- [시험 핵심 개념과 Python 기본 문법](docs/exam-core-concepts.md)
 - [미션 원문](docs/mission-original.md)
 - [미션 요구사항 요약](MISSION.md)
 - [요구사항 추적표](docs/requirements.md)
