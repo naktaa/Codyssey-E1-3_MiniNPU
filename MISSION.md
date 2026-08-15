@@ -93,6 +93,7 @@
 │   └── report.py
 ├── data.json
 ├── docs/
+│   ├── assets/
 │   ├── requirements.md
 │   ├── progress.md
 │   ├── worklog.md

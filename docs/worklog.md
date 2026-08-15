@@ -1945,3 +1945,31 @@
 ### 다음 작업
 
 사용자가 시험 전에 `docs/exam-core-concepts.md`의 예상 문제를 먼저 풀고, 막히는 문법을 관련 코드에서 다시 확인한다.
+
+## 2026-08-15 — README 성능·객체 참조 시각화 추가
+
+### 변경 파일
+
+- `docs/assets/mac-n2-trend.svg`
+- `docs/assets/python-list-access.svg`
+- `README.md`
+- `MISSION.md`
+- `docs/progress.md`
+- `docs/worklog.md`
+
+### 수행 내용
+
+- N² 연산 수를 X축으로 두고 2차원 MAC 실제 측정선과 O(N²) 기준선을 비교하는 SVG 작성
+- 25×25 실제값으로 `k = 0.0000472096`을 정규화하고 `T(N) = kN²` 기준식 명시
+- 기준선이 절대 시간 예측이 아니라 증가 경향 비교용임을 README에 설명
+- Python 리스트가 숫자 객체의 참조를 저장하는 구조를 2차원·1차원 방식으로 비교
+- `matrix[row][column]`의 두 리스트 조회와 `flat[index]`의 한 리스트 조회를 화살표로 표현
+- 1차원 변환 시간과 추가 리스트 메모리가 순수 MAC 측정에서 제외됐음을 그림과 본문에 명시
+- 프로젝트 구조에 README SVG 자산 폴더 반영
+
+### Codex 실행 여부
+
+- 애플리케이션 실행 없음
+- 벤치마크 실행 없음
+- 유닛 테스트 작성 및 실행 없음
+- SVG 문법, README 링크와 Markdown 공백만 정적으로 확인

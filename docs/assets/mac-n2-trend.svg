@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="560" viewBox="0 0 900 560" role="img" aria-labelledby="title desc">
+  <title id="title">N² 연산 수에 따른 O(N²) 기준선과 실제 2차원 MAC 시간</title>
+  <desc id="desc">25x25 측정값으로 정규화한 O(N²) 기준선과 3x3, 5x5, 13x13, 25x25 실제 측정값을 비교한 선 그래프</desc>
+  <rect width="900" height="560" rx="18" fill="#ffffff"/>
+  <rect x="1" y="1" width="898" height="558" rx="17" fill="none" stroke="#d0d7de" stroke-width="2"/>
+
+  <g font-family="Apple SD Gothic Neo, Noto Sans KR, sans-serif" fill="#24292f">
+    <text x="450" y="38" text-anchor="middle" font-size="23" font-weight="700">N² 연산 수와 2차원 MAC 평균 시간</text>
+    <text x="450" y="62" text-anchor="middle" font-size="13" fill="#57606a">워밍업 제외 · 개별 MAC 10회 평균 · 단위 ms</text>
+
+    <g font-size="13">
+      <line x1="548" y1="87" x2="594" y2="87" stroke="#0969da" stroke-width="4"/>
+      <circle cx="571" cy="87" r="5" fill="#0969da"/>
+      <text x="604" y="92">실제 측정선</text>
+      <line x1="704" y1="87" x2="750" y2="87" stroke="#6e7781" stroke-width="3" stroke-dasharray="9 7"/>
+      <rect x="722" y="82" width="10" height="10" transform="rotate(45 727 87)" fill="#ffffff" stroke="#6e7781" stroke-width="2"/>
+      <text x="760" y="92">O(N²) 기준선</text>
+    </g>
+
+    <g stroke="#d8dee4" stroke-width="1">
+      <line x1="105" y1="430" x2="805" y2="430"/>
+      <line x1="105" y1="383" x2="805" y2="383"/>
+      <line x1="105" y1="336" x2="805" y2="336"/>
+      <line x1="105" y1="289" x2="805" y2="289"/>
+      <line x1="105" y1="243" x2="805" y2="243"/>
+      <line x1="105" y1="196" x2="805" y2="196"/>
+      <line x1="105" y1="149" x2="805" y2="149"/>
+    </g>
+
+    <g font-size="12" fill="#57606a" text-anchor="end">
+      <text x="94" y="434">0.000</text>
+      <text x="94" y="387">0.005</text>
+      <text x="94" y="340">0.010</text>
+      <text x="94" y="293">0.015</text>
+      <text x="94" y="247">0.020</text>
+      <text x="94" y="200">0.025</text>
+      <text x="94" y="153">0.030</text>
+    </g>
+
+    <line x1="105" y1="120" x2="105" y2="430" stroke="#24292f" stroke-width="2"/>
+    <line x1="105" y1="430" x2="805" y2="430" stroke="#24292f" stroke-width="2"/>
+    <text x="28" y="278" text-anchor="middle" font-size="13" font-weight="600" transform="rotate(-90 28 278)">평균 시간(ms)</text>
+
+    <g stroke="#24292f" stroke-width="1.5">
+      <line x1="145" y1="430" x2="145" y2="437"/>
+      <line x1="345" y1="430" x2="345" y2="437"/>
+      <line x1="545" y1="430" x2="545" y2="437"/>
+      <line x1="745" y1="430" x2="745" y2="437"/>
+    </g>
+    <g font-size="13" text-anchor="middle">
+      <text x="145" y="456">9<tspan x="145" dy="17" fill="#6e7781">3×3</tspan></text>
+      <text x="345" y="456">25<tspan x="345" dy="17" fill="#6e7781">5×5</tspan></text>
+      <text x="545" y="456">169<tspan x="545" dy="17" fill="#6e7781">13×13</tspan></text>
+      <text x="745" y="456">625<tspan x="745" dy="17" fill="#6e7781">25×25</tspan></text>
+    </g>
+    <text x="455" y="501" text-anchor="middle" font-size="14" font-weight="600">N² 연산 수</text>
+
+    <polyline points="145,426 345,419 545,355 745,153" fill="none" stroke="#6e7781" stroke-width="3" stroke-dasharray="9 7" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#ffffff" stroke="#6e7781" stroke-width="2">
+      <rect x="140" y="421" width="10" height="10" transform="rotate(45 145 426)"/>
+      <rect x="340" y="414" width="10" height="10" transform="rotate(45 345 419)"/>
+      <rect x="540" y="350" width="10" height="10" transform="rotate(45 545 355)"/>
+      <rect x="740" y="148" width="10" height="10" transform="rotate(45 745 153)"/>
+    </g>
+
+    <polyline points="145,419 345,412 545,347 745,153" fill="none" stroke="#0969da" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    <g fill="#0969da" stroke="#ffffff" stroke-width="2">
+      <circle cx="145" cy="419" r="6"/>
+      <circle cx="345" cy="412" r="6"/>
+      <circle cx="545" cy="347" r="6"/>
+      <circle cx="745" cy="153" r="6"/>
+    </g>
+    <g font-size="12" font-weight="600" fill="#0550ae" text-anchor="middle">
+      <text x="145" y="402">0.001165</text>
+      <text x="345" y="395">0.001934</text>
+      <text x="545" y="330">0.008869</text>
+      <text x="745" y="136">0.029506</text>
+    </g>
+
+    <rect x="182" y="516" width="536" height="29" rx="8" fill="#f6f8fa" stroke="#d0d7de"/>
+    <text x="450" y="536" text-anchor="middle" font-size="13">기준식: T(N) = 0.0000472096 × N² · 25×25 실제값으로 정규화</text>
+  </g>
+</svg>
